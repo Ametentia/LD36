@@ -3,6 +3,7 @@ package com.perceptiongames.engine.Handlers.Terrain;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.Vector2;
 import com.perceptiongames.engine.Entities.AABB;
 import com.perceptiongames.engine.Entities.Entity;
 import com.perceptiongames.engine.Handlers.Animation;
@@ -45,6 +46,8 @@ public class TerrainGenerator {
     private Tile[][] terrain;
     private Texture[] textures;
 
+    private Vector2 startPosition;
+
     private static final Random random = new Random();
 
     private boolean left, down;
@@ -52,7 +55,7 @@ public class TerrainGenerator {
     public TerrainGenerator(Content content) {
         textures = new Texture[3];
         textures[0] = content.getTexture("Wall");
-        textures[1] = content.getTexture("Ground");
+        textures[1] = content.getTexture("BrokenWall");
         textures[2] = content.getTexture("Ladder");
 
         terrain = new Tile[GRID_SIZE * ROOM_WIDTH][GRID_SIZE * ROOM_HEIGHT];
@@ -81,6 +84,10 @@ public class TerrainGenerator {
 
         left = down = false;
         int x = random.nextInt(GRID_SIZE), y = 0;
+        startPosition = new Vector2();
+        startPosition.y = 4 * Tile.SIZE;
+        startPosition.x = ((x + 1) * ROOM_WIDTH * Tile.SIZE) + 5 * Tile.SIZE;
+
         while(true) {
             down = false;
             getDir();
@@ -235,21 +242,21 @@ public class TerrainGenerator {
                         texture = -1;
                         break;
                     case '1':
-                        texture = 0;
+                        texture = random.nextInt(2);
                         break;
                     case '2':
                         if (random.nextBoolean())
-                            texture = 0;
+                            texture = random.nextInt(2);
                         else
                             texture = -1;
                         break;
                     case '3':
-                        texture = 2;
+                        texture = 1;
                         break;
                 }
 
                 if (texture > -1) {
-                    terrain[xIndex + col][yIndex + row] = new Tile(new Animation(textures[0], 1, 1, 1f),
+                    terrain[xIndex + col][yIndex + row] = new Tile(new Animation(textures[texture], 1, 1, 1f),
                             new AABB(xOffset + (Tile.SIZE * col), yOffset + (Tile.SIZE * row), halfSize, halfSize));
                 }
                 col++;
@@ -342,4 +349,5 @@ public class TerrainGenerator {
     public Tile[][] getTerrain() {
         return terrain;
     }
+    public Vector2 getStartPosition() { return startPosition; }
 }

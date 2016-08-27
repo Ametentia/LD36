@@ -14,6 +14,8 @@ public class Player extends Entity {
     private Vector2 velocity;
     private boolean onGround;
 
+    private int health = 1;
+
     private ShapeRenderer renderer;
     private OrthographicCamera camera;
 
@@ -30,6 +32,12 @@ public class Player extends Entity {
         onGround = false; //Sets the player to off the ground by default
 
         renderer = new ShapeRenderer();
+    }
+
+    public void reset(Vector2 position) {
+        setPosition(position);
+        health = 1;
+        live = true;
     }
 
     /**
@@ -57,9 +65,6 @@ public class Player extends Entity {
             setVelocity(0, velocity.y); //If not pressing a direction key set the x velocity to 0
             this.setCurrentAnimation("idle");
         }
-        if(Gdx.input.isKeyJustPressed(Input.Keys.R)) {
-            setPosition(100, 100);
-        }
         if(Gdx.app.getType() == Application.ApplicationType.Android && Gdx.input.isTouched(0)) //very basic movement on android
         {
             if(Gdx.input.getY(0)<Game.HEIGHT/2 && onGround) {
@@ -84,16 +89,21 @@ public class Player extends Entity {
      */
     @Override
     public void update(float dt) {
+        if(!live) return;
 
         int flags = aabb.getCollisionFlags();
         if((flags & AABB.TOP_BITS) == AABB.TOP_BITS) {
             onGround = true;
-            velocity.y = 0;
+            if(velocity.y > 0) {
+                velocity.y = 0;
+            }
         }
 
         if((flags & AABB.BOTTOM_BITS) == AABB.BOTTOM_BITS) {
             onGround = false;
-            velocity.y = 0;
+            if(velocity.y < 0) {
+                velocity.y = 0;
+            }
         }
 
         if((flags & AABB.LEFT_BITS) == AABB.LEFT_BITS) {
@@ -112,31 +122,6 @@ public class Player extends Entity {
                 onGround = false;
             }
         }
-
-        /*switch (aabb.getCollisionFlags()) { //Checks if colliding
-            case TOP:
-                onGround = true; //If the player collides with the floor, set on ground to true and stop y movement
-                //velocity.y = 0;
-                break;
-            case BOTTOM: //Sets the velocity to 0 if the players head hits the roof
-                //velocity.y = 0;
-                onGround = false;
-                break;
-            case LEFT:
-                velocity.x = 0;
-                break;
-            case RIGHT:
-                velocity.x = 0;
-                break;
-            case NONE:
-                if(getPosition().y + aabb.getHeight() == Game.WORLD_HEIGHT) { //If no collision, check if its on the world floor
-                    onGround = true;
-                }
-                else {
-                    onGround = false;
-                }
-                break;
-        }*/
 
         handleInput();
 
@@ -195,4 +180,10 @@ public class Player extends Entity {
     }
 
     public void setCamera(OrthographicCamera camera) { this.camera = camera; }
+
+    public void hit() {
+        health--;
+        if(health == 0)
+            live = false;
+    }
 }

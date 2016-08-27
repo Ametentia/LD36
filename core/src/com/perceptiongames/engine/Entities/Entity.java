@@ -14,7 +14,7 @@ public abstract class Entity {
 
     protected HashMap<String, Animation> animations;
     private String currentAnimation;
-    private boolean live; //whether or not the entity is alive or not
+    protected boolean live; //whether or not the entity is alive or not
 
     protected AABB aabb;
 
@@ -36,7 +36,7 @@ public abstract class Entity {
         animations.get(currentAnimation).setPosition(aabb.getPosition());
     }
 
-    public void render(SpriteBatch batch) { if(live){animations.get(currentAnimation).render(batch);}}
+    public void render(SpriteBatch batch) { if(live) { animations.get(currentAnimation).render(batch); } }
 
     // Getters
     public AABB getAABB() { return aabb; }
