@@ -2,139 +2,141 @@ package com.perceptiongames.engine.States;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.math.Vector2;
 import com.perceptiongames.engine.Entities.AABB;
+import com.perceptiongames.engine.Entities.Enemy;
 import com.perceptiongames.engine.Entities.Player;
 import com.perceptiongames.engine.Game;
 import com.perceptiongames.engine.Handlers.Animation;
 import com.perceptiongames.engine.Handlers.GameStateManager;
 import com.perceptiongames.engine.Handlers.Terrain.TerrainGenerator;
-import com.perceptiongames.engine.Handlers.World;
+import com.perceptiongames.engine.Handlers.Terrain.Tile;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Play extends State {
 
-    private ShapeRenderer sr;
-    private BitmapFont font;
+    private ShapeRenderer debug;
+
+    private int levelNumber;
 
     private Player player;
+    private List<Enemy> enemies;
 
-    private Texture bg;
-
-    private float uRight, vTop;
-
-    private int frames, totalFrames;
-    private float frameTime;
-
-    private World world;
-    private String worldName;
+    private List<Vector2> deathPoints;
 
     private TerrainGenerator generator;
+    private Tile[][] terrain;
 
     public Play(GameStateManager gsm) {
         super(gsm);
 
-        Animation a = new Animation(content.getTexture("PlayerIdle"), 1, 8, 0.1f);
+        levelNumber = 1;
+        loadContent();
+        generateEntities();
 
-        bg = content.getTexture("Background");
-        bg.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
-
-        uRight = Game.WORLD_WIDTH / bg.getWidth();
-        vTop = Game.WORLD_HEIGHT / bg.getHeight();
-
-        world = new World();
-        world.addDynamic(player = new Player(a,"idle", new AABB(150, 150, 16, 32)));
-        a = new Animation(content.getTexture("PlayerMove"), 1, 5, 0.1f);
-        player.addAnimation("moveRight",a);
-        a = new Animation(content.getTexture("PlayerMove"), 1, 5, 0.1f);
-        a.setFlipX(true);
-        player.addAnimation("moveLeft",a);
-
-        sr = new ShapeRenderer();
-        sr.setColor(1, 0, 0, 1);
-
-        font = content.getFont("Ubuntu");
-        font.setColor(0, 1, 0, 1);
-
-        worldName = "World 1.json";
-
-        content.getMusic("Music").play();// Found this from when my friend made me music for an old game
-        content.getMusic("Music").setLooping(true); // Thought I should test music :P
-
-        generator = new TerrainGenerator(content);
-        world.addStatic(generator.getTerrain());
+        debug = new ShapeRenderer();
     }
 
+    @Override
     public void update(float dt) {
-
-        if(Gdx.input.isKeyJustPressed(Input.Keys.F5))
-            saveWorld(worldName);
-
-
-
-        if(Gdx.input.isKeyPressed(Input.Keys.UP)) {
-            camera.zoom = Math.max(0.5f, camera.zoom - 0.1f);
+        player.update(dt);
+        for(Enemy e : enemies) {
+            e.update(dt);
         }
 
-        if(Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-            camera.zoom = Math.min(3f, camera.zoom + 0.1f);
+        for(Tile[] t : terrain) {
+            for(Tile tt : t) {
+                if(tt != null) {
+                    player.getAABB().overlaps(tt.getAABB());
+                }
+            }
         }
 
-        if(Gdx.input.isKeyJustPressed(Input.Keys.Y)) {
-            world.removeStatic(generator.getTerrain());
+        if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+            camera.translate(-10, 0);
+        }
+        else if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+            camera.translate(10, 0);
+        }
+        else if(Gdx.input.isKeyPressed(Input.Keys.UP)) {
+            camera.translate(0, -10);
+        }
+        else if(Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+            camera.translate(0, 10);
+        }
+        else if(Gdx.input.isKeyPressed(Input.Keys.Q)) {
+            camera.zoom = Math.max(camera.zoom - 0.2f, 0);
+        }
+        else if(Gdx.input.isKeyPressed(Input.Keys.E)) {
+            camera.zoom = Math.min(camera.zoom + 0.2f, 4f);
+        }
+        else if(Gdx.input.isKeyJustPressed(Input.Keys.R)) {
             generator.generate();
-            world.addStatic(generator.getTerrain());
         }
-
-        mouse.set(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0));
-        camera.unproject(mouse);
-
-        if(Gdx.input.isKeyJustPressed(Input.Keys.F11)){
-            Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode(Gdx.graphics.getPrimaryMonitor()));
-        }
-
-        frames++;
-        frameTime += Gdx.graphics.getRawDeltaTime();
-        if(frameTime >= 1) {
-            totalFrames = frames;
-            frames = 0;
-            frameTime = 0;
-        }
-
-        world.update(dt);
-
-        camera.position.set(
-                Math.max(Math.min(player.getAABB().getCentre().x, Game.WORLD_WIDTH - 320), 320),
-                Math.max(Math.min(player.getAABB().getCentre().y, Game.WORLD_HEIGHT - 180), 180),
-                0);
-
         camera.update();
     }
 
+    @Override
     public void render() {
         batch.setProjectionMatrix(camera.combined);
-        sr.setProjectionMatrix(camera.combined);
-
+        debug.setProjectionMatrix(camera.combined);
         batch.begin();
-        batch.draw(bg, -320, -180, Game.WORLD_WIDTH + 640, Game.WORLD_HEIGHT + 360, 0, 0, uRight, vTop);
-        world.render(batch);
+        for(Tile[] t : terrain) {
+            for(Tile tt : t) {
+                if(tt != null) {
+                    tt.render(batch);
+                }
+            }
+        }
+        for(Enemy e : enemies) {
+            e.render(batch);
+        }
+        player.render(batch);
         batch.end();
-
-        sr.begin(ShapeRenderer.ShapeType.Line);
-        player.getAABB().debugRender(sr);
-        sr.box(0, 0, 0, Game.WORLD_WIDTH, Game.WORLD_HEIGHT, 0);
-        sr.end();
-
+        debug.begin(ShapeRenderer.ShapeType.Line);
+        debug.box(0, 0, 0, Game.WORLD_WIDTH, Game.WORLD_HEIGHT, 0);
+        debug.end();
     }
 
+    @Override
     public void dispose() {
-        sr.dispose();
+
     }
 
-    private void saveWorld(String worldDirectory) {
-        Gdx.files.local(worldDirectory).writeString(new Json().toJson(world), false);
+    private void loadContent() {
+        content.loadTexture("PlayerIdle", "PlayerStill.png");
+        content.loadTexture("PlayerMove", "PlayerMove.png");
+        content.loadTexture("Background", "Background.png");
+        content.loadTexture("Badlogic", "badlogic.jpg");
+        content.loadTexture("Block", "testBlock.png");
+
+        content.loadTexture("Wall", "Terrain/Wall.png");
+        content.loadTexture("Ladder", "Terrain/Ladder.png");
+        content.loadTexture("Ground", "Terrain/Ground.png");
+
+        content.loadFont("Ubuntu", "UbuntuBold.ttf", 20);
+
+        content.loadMusic("Music", "testMusic.mp3");
+    }
+
+    private void generateEntities() {
+        Animation playerStill = new Animation(content.getTexture("PlayerIdle"), 1, 8, 0.2f);
+        Animation playerLeft = new Animation(content.getTexture("PlayerMove"), 1, 5, 0.2f);
+        Animation playerRight = new Animation(content.getTexture("PlayerMove"), 1, 5, 0.2f);
+        playerLeft.setFlipX(true);
+        AABB aabb = new AABB(new Vector2(100, 100), new Vector2(16, 32));
+        player = new Player(playerStill, "idle", aabb);
+
+        player.addAnimation("moveLeft", playerLeft);
+        player.addAnimation("moveRight", playerRight);
+
+        enemies = new ArrayList<Enemy>();
+
+        generator =  new TerrainGenerator(content);
+
+        terrain = generator.getTerrain();
     }
 }

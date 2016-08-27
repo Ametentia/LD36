@@ -52,7 +52,6 @@ public class Game extends ApplicationAdapter {
         viewport.apply(true);
 
         content = new Content();
-        loadContent();
 
         gsm = new GameStateManager(this);
     }
@@ -81,22 +80,6 @@ public class Game extends ApplicationAdapter {
 
     @Override
     public void resize(int width, int height) { viewport.update(width, height, true); }
-
-    private void loadContent() {
-        content.loadTexture("PlayerIdle", "PlayerStill.png");
-        content.loadTexture("PlayerMove", "PlayerMove.png");
-        content.loadTexture("Background", "Background.png");
-        content.loadTexture("Badlogic", "badlogic.jpg");
-        content.loadTexture("Block", "testBlock.png");
-
-        content.loadTexture("Wall", "Terrain/Wall.png");
-        content.loadTexture("Ladder", "Terrain/Ladder.png");
-        content.loadTexture("Ground", "Terrain/Ground.png");
-
-        content.loadFont("Ubuntu", "UbuntuBold.ttf", 20);
-
-        content.loadMusic("Music", "testMusic.mp3");
-    }
 
     public SpriteBatch getSpriteBatch() { return batch; }
 	public OrthographicCamera getCamera() { return camera; }

@@ -3,6 +3,7 @@ package com.perceptiongames.engine.Handlers;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.perceptiongames.engine.Entities.AABB;
 import com.perceptiongames.engine.Entities.Entity;
+import com.perceptiongames.engine.Handlers.Terrain.Tile;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,6 +13,8 @@ public class World {
 
     private List<Entity> staticBodies;
     private List<Entity> dynamicBodies;
+
+    private Tile[][] terrain;
 
     public World() {
         staticBodies = new ArrayList<Entity>();
@@ -79,5 +82,9 @@ public class World {
     public void removeStatic(Collection<Entity> s) {
         if(staticBodies.containsAll(s))
             staticBodies.removeAll(s);
+    }
+
+    public void setTerrain(Tile[][] terrain) {
+        this.terrain = terrain;
     }
 }

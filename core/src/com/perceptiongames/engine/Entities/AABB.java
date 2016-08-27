@@ -15,7 +15,9 @@ public final class AABB {
         TOP,
         BOTTOM,
         LEFT,
-        RIGHT
+        RIGHT,
+
+        SENSOR
     }
 
     // AABB represented by a centre point and its half width and half height
@@ -25,6 +27,8 @@ public final class AABB {
     // The Current colliding state of the AABB
     // See CollisionState above
     private CollisionState colliding;
+
+    private boolean isSensor;
 
     // Constructors
 
@@ -57,6 +61,8 @@ public final class AABB {
         this.centre = new Vector2(centre);
         this.halfSize = new Vector2(halfSize);
         colliding = CollisionState.NONE;
+
+        isSensor = false;
     }
 
     /**
@@ -72,7 +78,12 @@ public final class AABB {
             return false;
         }
 
-        collide(other);
+
+        if(!isSensor && !other.isSensor)
+            collide(other);
+        else
+            colliding = CollisionState.SENSOR;
+
         return true;
     }
 
@@ -142,6 +153,7 @@ public final class AABB {
     public void setPosition(float x, float y) { setPosition(new Vector2(x, y)); }
     public void setPosition(Vector2 position) { setCentre(position.add(halfSize)); }
     public void setCollisionState(CollisionState state) { this.colliding = state; }
+    public void setSensor(boolean sensor) { this.isSensor = sensor; }
 
     // DEBUG Stuff
     // This will draw the AABB as an outline on screen

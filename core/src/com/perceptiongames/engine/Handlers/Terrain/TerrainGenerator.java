@@ -1,5 +1,7 @@
 package com.perceptiongames.engine.Handlers.Terrain;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.perceptiongames.engine.Entities.AABB;
 import com.perceptiongames.engine.Entities.Entity;
@@ -13,14 +15,18 @@ public class TerrainGenerator {
 
     private enum RoomType {
 
-        None(0),
-        Standard(1),
-        Down(2),
-        Up(3),
-        Cross(4);
+        None(0, "None"),
+        Standard(1, "Linear"),
+        Down(2, "T"),
+        Up(3, "UpsideDown T"),
+        Cross(4, "Cross");
 
         public final int VALUE;
-        RoomType(int v) { VALUE = v; }
+        public final String PATH;
+        RoomType(int v, String path) {
+            VALUE = v;
+            PATH = path;
+        }
 
         public static RoomType getEnum(int value) {
             for(RoomType t : RoomType.values()) {
@@ -33,8 +39,8 @@ public class TerrainGenerator {
     }
 
     public static final int ROOM_WIDTH = 10;
-    public static final int ROOM_HEIGHT = 8;
-    public static final int GRID_SIZE = 5;
+    public static final int ROOM_HEIGHT = 9;
+    public static final int GRID_SIZE = 4;
 
     private Tile[][] terrain;
     private Texture[] textures;
@@ -115,8 +121,10 @@ public class TerrainGenerator {
 
         for (int i = 0; i < GRID_SIZE; i++) {
             for (int j = 0; j < GRID_SIZE; j++) {
-                generateRoom(i, j, rooms[i][j]);
+                System.out.print(rooms[j][i].VALUE + "  ");
+                generateRoom(j, i, rooms[j][i]);
             }
+            System.out.println("");
         }
     }
 
@@ -131,12 +139,70 @@ public class TerrainGenerator {
         if(!down && currentDir != left) left = currentDir;
     }
 
-    /**
+    private void generateRoom(int xStart, int yStart, RoomType type) {
+
+        if(type == RoomType.None) return;
+
+        float xOffset = xStart * ROOM_WIDTH * Tile.SIZE + 40;
+        float yOffset = yStart * ROOM_HEIGHT * Tile.SIZE + 40;
+
+        int xIndex = (xStart * ROOM_WIDTH);
+        int yIndex = (yStart * ROOM_HEIGHT);
+
+        float halfSize = Tile.SIZE / 2;
+
+        int room;
+        if(type == RoomType.None) {
+            room = 0;
+        }
+        else {
+            room = random.nextInt(3);
+        }
+        String file = Gdx.files.internal("Rooms/" + type.PATH + "/" + room).readString();
+
+        int row = 0, col = 0;
+        for(char tile : file.toCharArray()) {
+            int texture = -1;
+            switch (tile) {
+                case '0':
+                    texture = -1;
+                    break;
+                case '1':
+                    texture = 0;
+                    break;
+                case '2':
+                    if(random.nextBoolean())
+                        texture = 0;
+                    else
+                        texture = -1;
+                    break;
+                case '3':
+                    texture = 2;
+                    break;
+            }
+
+            if(texture > -1) {
+                terrain[xIndex + col][yIndex + row] = new Tile(new Animation(textures[0], 1, 1, 1f),
+                        new AABB(xOffset + (Tile.SIZE * col), yOffset + (Tile.SIZE * row), halfSize, halfSize));
+            }
+
+            col++;
+            if(col == ROOM_WIDTH) {
+                row++;
+                if(row == ROOM_HEIGHT) {
+                    row = 0;
+                }
+                col = 0;
+            }
+        }
+    }
+
+   /*
      * Creates a new room base on the Room Type given
      * @param xStart Position on the grid width
      * @param yStart Position on the grid height
      * @param type Type of room to create
-     */
+
     private void generateRoom(int xStart, int yStart, RoomType type) {
         if(xStart >= GRID_SIZE || yStart >= GRID_SIZE)
             throw new ValueException("Error: xStart and yStart must be less than GRID SIZE\nxStart: " +
@@ -154,7 +220,7 @@ public class TerrainGenerator {
         boolean createTile;
         for (int i = 0; i < ROOM_WIDTH; i++) {
             for (int j = 0; j < ROOM_HEIGHT; j++) {
-                seed = 0;
+                seed = 0; //random.nextInt(0);
                 createTile = false;
                 switch (type) {
                     case Standard:
@@ -183,7 +249,7 @@ public class TerrainGenerator {
 
             }
         }
-    }
+    }*/
 
     /*public void update(float dt) {
         for (int i = 0; i < (GRID_SIZE * ROOM_WIDTH); i++) {
@@ -211,12 +277,7 @@ public class TerrainGenerator {
         }
     }*/
 
-    public List<Entity> getTerrain() {
-        List<Entity> list = new ArrayList<Entity>();
-        for(Tile[] t : terrain)
-            list.addAll(Arrays.asList(t));
-
-        list.removeAll(Collections.singleton(null));
-        return list;
+    public Tile[][] getTerrain() {
+        return terrain;
     }
 }
