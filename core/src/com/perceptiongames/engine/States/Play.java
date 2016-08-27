@@ -41,6 +41,7 @@ public class Play extends State {
 
         debug = new ShapeRenderer();
         debugFont = content.getFont("Ubuntu");
+        camera.zoom =0.5f;
     }
 
     @Override
@@ -80,7 +81,12 @@ public class Play extends State {
         else if(Gdx.input.isKeyJustPressed(Input.Keys.R)) {
             generator.generate();
         }
+        camera.position.set(
+                Math.max(Math.min(player.getAABB().getCentre().x, Game.WORLD_WIDTH - 320), 320),
+                Math.max(Math.min(player.getAABB().getCentre().y, Game.WORLD_HEIGHT - 180), 180),
+                0);
         camera.update();
+
     }
 
     @Override
@@ -118,8 +124,8 @@ public class Play extends State {
     }
 
     private void loadContent() {
-        content.loadTexture("PlayerIdle", "PlayerStill.png");
-        content.loadTexture("PlayerMove", "PlayerMove.png");
+        content.loadTexture("PlayerIdle", "PlayerIdle.png");
+        content.loadTexture("PlayerMove", "PlayerRun.png");
         content.loadTexture("Background", "Background.png");
         content.loadTexture("Badlogic", "badlogic.jpg");
         content.loadTexture("Block", "testBlock.png");
@@ -134,9 +140,9 @@ public class Play extends State {
     }
 
     private void generateEntities() {
-        Animation playerStill = new Animation(content.getTexture("PlayerIdle"), 1, 8, 0.2f);
-        Animation playerLeft = new Animation(content.getTexture("PlayerMove"), 1, 5, 0.2f);
-        Animation playerRight = new Animation(content.getTexture("PlayerMove"), 1, 5, 0.2f);
+        Animation playerStill = new Animation(content.getTexture("PlayerIdle"), 1, 24, 0.2f);
+        Animation playerLeft = new Animation(content.getTexture("PlayerMove"), 1, 5, 0.1f);
+        Animation playerRight = new Animation(content.getTexture("PlayerMove"), 1, 5, 0.1f);
         playerLeft.setFlipX(true);
         AABB aabb = new AABB(new Vector2(100, 100), new Vector2(16, 32));
         player = new Player(playerStill, "idle", aabb);
