@@ -124,6 +124,7 @@ public class Play extends State {
         content.loadTexture("PlayerIdle", "PlayerIdle.png");
         content.loadTexture("PlayerMove", "PlayerRun.png");
         content.loadTexture("PlayerPush", "PlayerPush.png");
+        content.loadTexture("PlayerAttack", "PlayerAttack(shite).png");
         content.loadTexture("Background", "Background.png");
         content.loadTexture("Badlogic", "badlogic.jpg");
         content.loadTexture("Block", "testBlock.png");
@@ -145,8 +146,11 @@ public class Play extends State {
         Animation playerRight = new Animation(content.getTexture("PlayerMove"), 1, 5, 0.1f);
         Animation playerPushLeft = new Animation(content.getTexture("PlayerPush"), 1, 5, 0.1f);
         Animation playerPushRight = new Animation(content.getTexture("PlayerPush"), 1, 5, 0.1f);
+        Animation playerAttackLeft = new Animation(content.getTexture("PlayerAttack"), 1, 21, 0.05f);
+        Animation playerAttackRight = new Animation(content.getTexture("PlayerAttack"), 1, 21, 0.05f);
 
         playerLeft.setFlipX(true);
+        playerAttackLeft.setFlipX(true);
         playerPushLeft.setFlipX(true);
         AABB aabb = new AABB(new Vector2(100, 100), new Vector2(16, 32));
         player = new Player(playerStill, "idle", aabb);
@@ -157,6 +161,9 @@ public class Play extends State {
 
         player.addAnimation("pushLeft", playerPushLeft);
         player.addAnimation("pushRight", playerPushRight);
+
+        player.addAnimation("attackRight", playerAttackRight);
+        player.addAnimation("attackLeft", playerAttackLeft);
 
         enemies = new ArrayList<Enemy>();
 

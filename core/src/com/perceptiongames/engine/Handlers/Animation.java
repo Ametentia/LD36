@@ -103,4 +103,5 @@ public class Animation {
     }
     public void setFlipX(boolean flip) { flipX = flip; }
     public void setFlipY(boolean flip) { flipY = flip; }
+    public void setFrame(int frame) {this.currentFrame=frame;}
 }
