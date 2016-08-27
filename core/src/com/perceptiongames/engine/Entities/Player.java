@@ -44,7 +44,6 @@ public class Player extends Entity {
      * Handles the user input to effect the player movement
      */
     private void handleInput() {
-        boolean moving = false;  // Sets the player to not moving
 
         if(onGround && Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) { //Checks if the player is on the ground and if they want to jump
             setVelocity(velocity.x, -940f); //Sets their velocity to the escape jump speed
@@ -53,33 +52,25 @@ public class Player extends Entity {
 
         if(Gdx.input.isKeyPressed(Input.Keys.A)) {
             setVelocity(-500f, velocity.y); //Sets the velocity to the left at a 500 units/s speed
-            moving = true;
-            this.setCurrentAnimation("moveLeft");
+            if((aabb.getCollisionFlags() & AABB.RIGHT_BITS) == AABB.RIGHT_BITS) {
+                setCurrentAnimation("pushLeft");
+            }
+            else {
+                this.setCurrentAnimation("moveLeft");
+            }
         }
         else if(Gdx.input.isKeyPressed(Input.Keys.D)) {
             setVelocity(500f, velocity.y); //Sets the velocity to the right at a 500 units/s speed
-            moving = true;
-            this.setCurrentAnimation("moveRight");
+            if((aabb.getCollisionFlags() & AABB.LEFT_BITS) == AABB.LEFT_BITS) {
+                setCurrentAnimation("pushRight");
+            }
+            else {
+                this.setCurrentAnimation("moveRight");
+            }
         }
         else {
             setVelocity(0, velocity.y); //If not pressing a direction key set the x velocity to 0
             this.setCurrentAnimation("idle");
-        }
-        if(Gdx.app.getType() == Application.ApplicationType.Android && Gdx.input.isTouched(0)) //very basic movement on android
-        {
-            if(Gdx.input.getY(0)<Game.HEIGHT/2 && onGround) {
-                setVelocity(velocity.x, -940f);
-                onGround = false;
-            }
-            if(Gdx.input.getY(0)>Game.HEIGHT/2)
-            {
-                if (Gdx.input.getX(0) > Game.WIDTH / 2)
-                    setVelocity(500f, velocity.y);
-                else if (Gdx.input.getX(0) < Game.WIDTH / 2)
-                    setVelocity(-500f, velocity.y);
-                else
-                    setVelocity(0, velocity.y);
-            }
         }
     }
 

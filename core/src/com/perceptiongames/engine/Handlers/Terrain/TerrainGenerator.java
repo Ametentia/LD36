@@ -8,7 +8,6 @@ import com.perceptiongames.engine.Entities.AABB;
 import com.perceptiongames.engine.Entities.Entity;
 import com.perceptiongames.engine.Handlers.Animation;
 import com.perceptiongames.engine.Handlers.Content;
-import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
 
 import java.util.*;
 

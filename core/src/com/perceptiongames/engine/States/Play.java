@@ -110,6 +110,8 @@ public class Play extends State {
             e.render(batch);
         }
         player.render(batch);
+        debugFont.draw(batch, "Flags: " + String.format("0x%08X", player.getAABB().getCollisionFlags()),
+                player.getPosition().x + 45, player.getPosition().y);
         batch.end();
         debug.begin(ShapeRenderer.ShapeType.Line);
         debug.box(0, 0, 0, Game.WORLD_WIDTH, Game.WORLD_HEIGHT, 0);
@@ -124,13 +126,12 @@ public class Play extends State {
     }
 
     @Override
-    public void dispose() {
-
-    }
+    public void dispose() {}
 
     private void loadContent() {
         content.loadTexture("PlayerIdle", "PlayerIdle.png");
         content.loadTexture("PlayerMove", "PlayerRun.png");
+        content.loadTexture("PlayerPush", "PlayerPush.png");
         content.loadTexture("Background", "Background.png");
         content.loadTexture("Badlogic", "badlogic.jpg");
         content.loadTexture("Block", "testBlock.png");
@@ -147,15 +148,23 @@ public class Play extends State {
 
     private void generateEntities() {
         Animation playerStill = new Animation(content.getTexture("PlayerIdle"), 1, 24, 0.2f);
+
         Animation playerLeft = new Animation(content.getTexture("PlayerMove"), 1, 5, 0.1f);
         Animation playerRight = new Animation(content.getTexture("PlayerMove"), 1, 5, 0.1f);
+        Animation playerPushLeft = new Animation(content.getTexture("PlayerPush"), 1, 5, 0.1f);
+        Animation playerPushRight = new Animation(content.getTexture("PlayerPush"), 1, 5, 0.1f);
+
         playerLeft.setFlipX(true);
+        playerPushLeft.setFlipX(true);
         AABB aabb = new AABB(new Vector2(100, 100), new Vector2(16, 32));
         player = new Player(playerStill, "idle", aabb);
         player.setCamera(camera);
 
         player.addAnimation("moveLeft", playerLeft);
         player.addAnimation("moveRight", playerRight);
+
+        player.addAnimation("pushLeft", playerPushLeft);
+        player.addAnimation("pushRight", playerPushRight);
 
         enemies = new ArrayList<Enemy>();
 
