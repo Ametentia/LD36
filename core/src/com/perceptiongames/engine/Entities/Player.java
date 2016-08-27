@@ -17,9 +17,6 @@ public class Player extends Entity {
     private int health = 1;
     private int numberDeaths = 0;
 
-    private ShapeRenderer renderer;
-    private OrthographicCamera camera;
-
     /**
      * Sets up the local variables for the player
      * @param animation The animation for the player
@@ -31,8 +28,6 @@ public class Player extends Entity {
         velocity = new Vector2(); //Sets up a vector with values 0,0
 
         onGround = false; //Sets the player to off the ground by default
-
-        renderer = new ShapeRenderer();
     }
 
     public void reset(Vector2 position) {
@@ -162,17 +157,8 @@ public class Player extends Entity {
             onGround = true;
         }
 
-        renderer.setProjectionMatrix(camera.combined);
-        renderer.begin(ShapeRenderer.ShapeType.Line);
-        renderer.setColor(1, 0, 0, 1);
-        aabb.debugRender(renderer);
         setPosition(newPos);
-        renderer.setColor(0, 1, 0, 1);
-        aabb.debugRender(renderer);
         super.update(dt);
-        renderer.setColor(0, 0, 1, 1);
-        aabb.debugRender(renderer);
-        renderer.end();
         aabb.setCollisionFlags(AABB.NONE_BITS);
     }
 
@@ -187,8 +173,6 @@ public class Player extends Entity {
     public void setVelocity(Vector2 v) {
         velocity.set(v);
     }
-
-    public void setCamera(OrthographicCamera camera) { this.camera = camera; }
 
     public void hit() {
         health--;
