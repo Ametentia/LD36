@@ -18,9 +18,9 @@ public class DesktopLauncher {
 
         // Prevents game from closing with exit code 255
         // Closes with exit code 0 like it should
-		//System.setProperty("org.lwjgl.opengl.Window.undecorated", "true");
         config.forceExit = false;
-		System.setProperty("org.lwjgl.opengl.Window.undecorated", "true");
+		//System.setProperty("org.lwjgl.opengl.Window.undecorated", "true");
+        config.vSyncEnabled = false;
 
 		new LwjglApplication(new Game(), config);
 	}

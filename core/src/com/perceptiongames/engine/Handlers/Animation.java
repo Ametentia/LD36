@@ -22,6 +22,13 @@ public class Animation {
     private boolean flipX;
     private boolean flipY;
 
+    private boolean finished;
+    private int totalPlays;
+    private int maxPlays;
+
+    private float offsetX;
+    private float offsetY;
+
     /**
      * Creates an animation from a texture
      * @param texture The texture to represent the animation
@@ -51,6 +58,11 @@ public class Animation {
         position = new Vector2();
 
         flipX = flipY = false;
+
+        totalPlays = 0;
+        maxPlays = -1;
+
+        offsetX = offsetY = 0;
     }
 
     /**
@@ -64,8 +76,13 @@ public class Animation {
             sinceLastFrame -= timePerFrame;
 
             currentFrame++;
-            if (currentFrame == totalFrames)
+            if (currentFrame == totalFrames) {
                 currentFrame = 0;
+                totalPlays++;
+                if(totalPlays == maxPlays) {
+                    finished = true;
+                }
+            }
         }
     }
 
@@ -83,7 +100,7 @@ public class Animation {
         texture.setRegion(col * width, row * height, width, height);
 
         texture.flip(flipX, !flipY);
-        batch.draw(texture, position.x, position.y);
+        batch.draw(texture, position.x + offsetX, position.y + offsetY);
     }
 
     // Getters
@@ -93,6 +110,7 @@ public class Animation {
     public int getColumns() { return columns; }
     public boolean isFlipX() { return flipX; }
     public boolean isFlipY() { return flipY; }
+    public boolean isFinished() { return finished; }
 
     // Setters
     public void setPosition(Vector2 position) {
@@ -103,5 +121,15 @@ public class Animation {
     }
     public void setFlipX(boolean flip) { flipX = flip; }
     public void setFlipY(boolean flip) { flipY = flip; }
-    public void setFrame(int frame) {this.currentFrame=frame;}
+    public void setFrame(int frame) { this.currentFrame = frame; }
+    public void setMaxPlays(int plays) { this.maxPlays = plays; }
+    public void reset() {
+        maxPlays = -1;
+        totalPlays = 0;
+        finished = false;
+    }
+    public void setOffset(float x, float y) {
+        offsetX = x;
+        offsetY = y;
+    }
 }

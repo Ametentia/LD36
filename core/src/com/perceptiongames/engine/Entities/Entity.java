@@ -14,6 +14,7 @@ public abstract class Entity {
 
     protected HashMap<String, Animation> animations;
     private String currentAnimation;
+    private String prevAnimation;
     protected boolean live; //whether or not the entity is alive or not
 
     protected AABB aabb;
@@ -25,8 +26,7 @@ public abstract class Entity {
         this.aabb = aabb;
 
         animations.put(animationName, animation);
-        currentAnimation = animationName;
-
+        currentAnimation = prevAnimation = animationName;
         this.animations.get(currentAnimation).setPosition(getPosition());
     }
 
@@ -34,6 +34,10 @@ public abstract class Entity {
     public void update(float dt) {
         animations.get(currentAnimation).update(dt);
         animations.get(currentAnimation).setPosition(aabb.getPosition());
+        if(animations.get(currentAnimation).isFinished()) {
+            animations.get(currentAnimation).reset();
+            currentAnimation = prevAnimation;
+        }
     }
 
     public void render(SpriteBatch batch) { if(live) { animations.get(currentAnimation).render(batch); } }
@@ -44,7 +48,7 @@ public abstract class Entity {
     public Vector2 getPosition() { return aabb.getPosition(); }
     public String getAnimationKey() { return currentAnimation; }
     public void addAnimation(String key, Animation animation) { animations.put(key,animation); }
-    public boolean isLive() {return live;}
+    public boolean isLive() { return live; }
 
     // Setters
     public void setPosition(float x, float y) { setPosition(new Vector2(x, y)); }
@@ -54,7 +58,18 @@ public abstract class Entity {
     public void setCurrentAnimation(String animation) {
         if(!animations.containsKey(animation))
             throw new IllegalArgumentException("Error: Animation " + animation +" does not exist in this entity");
+
+        prevAnimation = currentAnimation.equals(animation) ? prevAnimation : currentAnimation;
         currentAnimation = animation;
     }
-    public void setLive(boolean live) {this.live = live;}
+
+    public void setCurrentAnimation(String animation, int plays) {
+        if(!animations.containsKey(animation))
+            throw new IllegalArgumentException("Error: Animation " + animation +" does not exist in this entity");
+
+        prevAnimation = currentAnimation.equals(animation) ? prevAnimation : currentAnimation;
+        currentAnimation = animation;
+        animations.get(currentAnimation).setMaxPlays(plays);
+    }
+    public void setLive(boolean live) { this.live = live; }
 }

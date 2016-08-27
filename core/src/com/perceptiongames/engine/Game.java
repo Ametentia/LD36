@@ -58,6 +58,7 @@ public class Game extends ApplicationAdapter {
 
 	@Override
 	public void render () {
+	    Gdx.graphics.setTitle("FPS: " + Gdx.graphics.getFramesPerSecond());
 		Gdx.gl.glClearColor((100/255f), (149/255f), (237/255f), 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 

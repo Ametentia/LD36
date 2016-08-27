@@ -34,6 +34,9 @@ public class Play extends State {
     private Tile[][] terrain;
     private Texture bg;
 
+    private boolean showDeathPoints;
+    private boolean restarted;
+
     public Play(GameStateManager gsm) {
         super(gsm);
 
@@ -42,29 +45,19 @@ public class Play extends State {
         generateEntities();
 
         debug = new ShapeRenderer();
+        debug.setColor(1, 0, 0, 1);
         debugFont = content.getFont("Ubuntu");
         camera.zoom =0.5f;
         bg = content.getTexture("Background");
         bg.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
+
+        deathPoints = new ArrayList<Vector2>();
+        showDeathPoints = false;
+        restarted = false;
     }
 
     @Override
     public void update(float dt) {
-        player.update(dt);
-        for(Enemy e : enemies) {
-            e.update(dt);
-        }
-        for(Tile[] t : terrain) {
-            for(Tile tt : t) {
-                if(tt != null) {
-                    if(player.getAABB().overlaps(tt.getAABB())) {
-                        player.getAnimation(player.getAnimationKey()).setPosition(player.getPosition());
-                        if(tt.getDamage() > 0)
-                            player.hit();
-                    }
-                }
-            }
-        }
 
         if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
             camera.translate(-10, 0);
@@ -85,8 +78,35 @@ public class Play extends State {
             camera.zoom = Math.min(camera.zoom + 0.2f, 4f);
         }
         else if(Gdx.input.isKeyJustPressed(Input.Keys.R)) {
+            restarted = false;
             player.reset(generator.getStartPosition());
         }
+        else if(Gdx.input.isKeyJustPressed(Input.Keys.P)){
+            showDeathPoints = !showDeathPoints;
+        }
+
+        player.update(dt);
+        for(Enemy e : enemies) {
+            e.update(dt);
+        }
+        for(Tile[] t : terrain) {
+            for(Tile tt : t) {
+                if(tt != null) {
+                    if(player.getAABB().overlaps(tt.getAABB())) {
+                        player.getAnimation(player.getAnimationKey()).setPosition(player.getPosition());
+                        if(tt.getDamage() > 0) {
+                            player.hit();
+                            if(!player.isLive() && !restarted) {
+                                deathPoints.add(new Vector2(player.getAABB().getCentre()));
+                                player.incrementDeaths();
+                                restarted = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         camera.position.set(
                 Math.max(Math.min(player.getAABB().getCentre().x, Game.WORLD_WIDTH - 320), 320),
                 Math.max(Math.min(player.getAABB().getCentre().y, Game.WORLD_HEIGHT - 180), 180),
@@ -113,7 +133,22 @@ public class Play extends State {
             e.render(batch);
         }
         player.render(batch);
+        mouse.set(100, 100, 0);
+        camera.unproject(mouse);
+        debugFont.draw(batch, "Number of Deaths: " + player.getNumberDeaths(), mouse.x, mouse.y);
         batch.end();
+
+        debug.begin(ShapeRenderer.ShapeType.Line);
+        player.getAABB().debugRender(debug);
+        debug.end();
+
+        if(showDeathPoints) {
+            debug.begin(ShapeRenderer.ShapeType.Filled);
+            for(Vector2 p : deathPoints) {
+                debug.circle(p.x, p.y, 5f);
+            }
+            debug.end();
+        }
 
     }
 
@@ -124,7 +159,8 @@ public class Play extends State {
         content.loadTexture("PlayerIdle", "PlayerIdle.png");
         content.loadTexture("PlayerMove", "PlayerRun.png");
         content.loadTexture("PlayerPush", "PlayerPush.png");
-        content.loadTexture("PlayerAttack", "PlayerAttack(shite).png");
+        content.loadTexture("PlayerAttackLeft", "PlayerAttackLeft.png");
+        content.loadTexture("PlayerAttackRight", "PlayerAttackRight.png");
         content.loadTexture("Background", "Background.png");
         content.loadTexture("Badlogic", "badlogic.jpg");
         content.loadTexture("Block", "testBlock.png");
@@ -146,12 +182,13 @@ public class Play extends State {
         Animation playerRight = new Animation(content.getTexture("PlayerMove"), 1, 5, 0.1f);
         Animation playerPushLeft = new Animation(content.getTexture("PlayerPush"), 1, 5, 0.1f);
         Animation playerPushRight = new Animation(content.getTexture("PlayerPush"), 1, 5, 0.1f);
-        Animation playerAttackLeft = new Animation(content.getTexture("PlayerAttack"), 1, 21, 0.05f);
-        Animation playerAttackRight = new Animation(content.getTexture("PlayerAttack"), 1, 21, 0.05f);
+        Animation playerAttackLeft = new Animation(content.getTexture("PlayerAttackLeft"), 1, 21, 0.05f);
+        Animation playerAttackRight = new Animation(content.getTexture("PlayerAttackRight"), 1, 21, 0.05f);
+        playerAttackLeft.setOffset(-32, 0);
 
         playerLeft.setFlipX(true);
-        playerAttackLeft.setFlipX(true);
         playerPushLeft.setFlipX(true);
+
         AABB aabb = new AABB(new Vector2(100, 100), new Vector2(16, 32));
         player = new Player(playerStill, "idle", aabb);
         player.setCamera(camera);

@@ -15,6 +15,7 @@ public class Player extends Entity {
     private boolean onGround;
 
     private int health = 1;
+    private int numberDeaths = 0;
 
     private ShapeRenderer renderer;
     private OrthographicCamera camera;
@@ -35,7 +36,7 @@ public class Player extends Entity {
     }
 
     public void reset(Vector2 position) {
-        setPosition(position);
+        setPosition(new Vector2(position));
         health = 1;
         live = true;
     }
@@ -45,32 +46,47 @@ public class Player extends Entity {
      */
     private void handleInput() {
 
+        if(onGround && getAnimationKey().contains("attack"))
+            velocity.x = 0;
+
         if(onGround && Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) { //Checks if the player is on the ground and if they want to jump
             setVelocity(velocity.x, -940f); //Sets their velocity to the escape jump speed
             onGround = false;
         }
 
         if(Gdx.input.isKeyPressed(Input.Keys.A)) {
-            setVelocity(-500f, velocity.y); //Sets the velocity to the left at a 500 units/s speed
-            if((aabb.getCollisionFlags() & AABB.RIGHT_BITS) == AABB.RIGHT_BITS) {
-                setCurrentAnimation("pushLeft");
+            if(Gdx.input.isTouched()) {
+                setCurrentAnimation("attackLeft", 1);
+                if(onGround) velocity.x = 0;
             }
-            else {
-                this.setCurrentAnimation("moveLeft");
+            else if(!getAnimationKey().contains("attack")) {
+                setVelocity(-500f, velocity.y); //Sets the velocity to the left at a 500 units/s speed
+                if ((aabb.getCollisionFlags() & AABB.RIGHT_BITS) == AABB.RIGHT_BITS) {
+                    setCurrentAnimation("pushLeft");
+                } else {
+                    this.setCurrentAnimation("moveLeft");
+                }
             }
         }
         else if(Gdx.input.isKeyPressed(Input.Keys.D)) {
-            setVelocity(500f, velocity.y); //Sets the velocity to the right at a 500 units/s speed
-            if((aabb.getCollisionFlags() & AABB.LEFT_BITS) == AABB.LEFT_BITS) {
-                setCurrentAnimation("pushRight");
+            if(Gdx.input.isTouched()) {
+                setCurrentAnimation("attackRight", 1);
+                if(onGround) velocity.x = 0;
             }
-            else {
-                this.setCurrentAnimation("moveRight");
+            else if(!getAnimationKey().contains("attack")) {
+                setVelocity(500f, velocity.y); //Sets the velocity to the right at a 500 units/s speed
+                if ((aabb.getCollisionFlags() & AABB.LEFT_BITS) == AABB.LEFT_BITS) {
+                    setCurrentAnimation("pushRight");
+                }
+                else {
+                    this.setCurrentAnimation("moveRight");
+                }
             }
         }
         else {
             setVelocity(0, velocity.y); //If not pressing a direction key set the x velocity to 0
-            this.setCurrentAnimation("idle");
+            if(!getAnimationKey().contains("attack"))
+                this.setCurrentAnimation("idle");
         }
     }
 
@@ -162,6 +178,8 @@ public class Player extends Entity {
 
     public Vector2 getVelocity() { return velocity; }
     public boolean isOnGround() { return onGround; }
+    public int getNumberDeaths() { return numberDeaths; }
+    public int getHealth() { return health; }
 
     public void setVelocity(float x, float y) {
         setVelocity(new Vector2(x, y));
@@ -177,4 +195,6 @@ public class Player extends Entity {
         if(health == 0)
             live = false;
     }
+
+    public void incrementDeaths() { numberDeaths++; }
 }

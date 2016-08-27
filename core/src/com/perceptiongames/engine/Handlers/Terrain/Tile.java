@@ -14,16 +14,19 @@ public class Tile {
     private Texture texture;
 
     private int damage;
+    private boolean active;
 
     public Tile(Texture texture, AABB aabb) {
         this.aabb = aabb;
         this.texture = texture;
 
         damage = 0;
+        active = false;
     }
 
     public void render(SpriteBatch batch) {
-        batch.draw(texture, aabb.getPosition().x, aabb.getPosition().y);
+        batch.draw(texture, aabb.getPosition().x, aabb.getPosition().y, texture.getWidth(), texture.getHeight(),
+                0, 0, texture.getWidth(), texture.getHeight(), false, true);
     }
 
     public AABB getAABB() { return aabb; }
@@ -31,4 +34,5 @@ public class Tile {
     public int getDamage() { return damage; }
 
     public void setDamage(int dmg) { damage = dmg; }
+    public void setActive(boolean a) { active = a; }
 }
