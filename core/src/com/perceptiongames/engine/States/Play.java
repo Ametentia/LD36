@@ -130,7 +130,7 @@ public class Play extends State {
         content.loadTexture("Badlogic", "badlogic.jpg");
         content.loadTexture("Block", "testBlock.png");
 
-        content.loadTexture("Wall", "Terrain/Wall.png");
+        content.loadTexture("Wall", "Terrain/BrokenWall1.png");
         content.loadTexture("Ladder", "Terrain/Ladder.png");
         content.loadTexture("Ground", "Terrain/Ground.png");
 
