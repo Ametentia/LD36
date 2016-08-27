@@ -41,7 +41,7 @@ public class Play extends State {
 
         debug = new ShapeRenderer();
         debugFont = content.getFont("Ubuntu");
-        camera.zoom =0.5f;
+        camera.zoom = 0.5f;
     }
 
     @Override
@@ -73,13 +73,13 @@ public class Play extends State {
             camera.translate(0, 10);
         }
         else if(Gdx.input.isKeyPressed(Input.Keys.Q)) {
-            camera.zoom = Math.max(camera.zoom - 0.2f, 0);
+            camera.zoom = Math.max(camera.zoom - 0.2f, 0.5f);
         }
         else if(Gdx.input.isKeyPressed(Input.Keys.E)) {
-            camera.zoom = Math.min(camera.zoom + 0.2f, 4f);
+            camera.zoom = Math.min(camera.zoom + 0.2f, 3f);
         }
         else if(Gdx.input.isKeyJustPressed(Input.Keys.R)) {
-            generator.generate();
+            player.reset(generator.getStartPosition());
         }
         camera.position.set(
                 Math.max(Math.min(player.getAABB().getCentre().x, Game.WORLD_WIDTH - 320), 320),
@@ -130,7 +130,8 @@ public class Play extends State {
         content.loadTexture("Badlogic", "badlogic.jpg");
         content.loadTexture("Block", "testBlock.png");
 
-        content.loadTexture("Wall", "Terrain/BrokenWall1.png");
+        content.loadTexture("Wall", "Terrain/Wall.png");
+        content.loadTexture("BrokenWall", "Terrain/BrokenWall1.png");
         content.loadTexture("Ladder", "Terrain/Ladder.png");
         content.loadTexture("Ground", "Terrain/Ground.png");
 
