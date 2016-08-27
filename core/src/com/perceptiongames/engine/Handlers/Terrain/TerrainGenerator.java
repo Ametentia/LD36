@@ -154,7 +154,7 @@ public class TerrainGenerator {
         boolean createTile;
         for (int i = 0; i < ROOM_WIDTH; i++) {
             for (int j = 0; j < ROOM_HEIGHT; j++) {
-                seed = random.nextInt(20);
+                seed = 0;
                 createTile = false;
                 switch (type) {
                     case Standard:
@@ -177,7 +177,7 @@ public class TerrainGenerator {
                 }
 
                 if(createTile) {
-                    terrain[xIndex + i][yIndex + j] = new Tile(new Animation(textures[1], 1, 4, 1f),
+                    terrain[xIndex + i][yIndex + j] = new Tile(new Animation(textures[0], 1, 1, 1f),
                             new AABB(xOffset + (Tile.SIZE * i), yOffset + (Tile.SIZE * j), halfSize, halfSize));
                 }
 
