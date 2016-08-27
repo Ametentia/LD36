@@ -55,7 +55,7 @@ public class TerrainGenerator {
         textures = new Texture[3];
         textures[0] = content.getTexture("Wall");
         textures[1] = content.getTexture("BrokenWall");
-        textures[2] = content.getTexture("Ladder");
+        textures[2] = content.getTexture("Spikes");
 
         terrain = new Tile[GRID_SIZE * ROOM_WIDTH][GRID_SIZE * ROOM_HEIGHT];
 
@@ -250,13 +250,15 @@ public class TerrainGenerator {
                             texture = -1;
                         break;
                     case '3':
-                        texture = 1;
+                        texture = 2;
                         break;
                 }
 
                 if (texture > -1) {
-                    terrain[xIndex + col][yIndex + row] = new Tile(new Animation(textures[texture], 1, 1, 1f),
+                    terrain[xIndex + col][yIndex + row] = new Tile(textures[texture],
                             new AABB(xOffset + (Tile.SIZE * col), yOffset + (Tile.SIZE * row), halfSize, halfSize));
+
+                    if(texture == 2) terrain[xIndex + col][yIndex + row].setDamage(1);
                 }
                 col++;
             }

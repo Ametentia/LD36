@@ -59,6 +59,8 @@ public class Play extends State {
                 if(tt != null) {
                     if(player.getAABB().overlaps(tt.getAABB())) {
                         player.getAnimation(player.getAnimationKey()).setPosition(player.getPosition());
+                        if(tt.getDamage() > 0)
+                            player.hit();
                     }
                 }
             }
@@ -89,8 +91,8 @@ public class Play extends State {
                 Math.max(Math.min(player.getAABB().getCentre().x, Game.WORLD_WIDTH - 320), 320),
                 Math.max(Math.min(player.getAABB().getCentre().y, Game.WORLD_HEIGHT - 180), 180),
                 0);
-        camera.update();
 
+        camera.update();
     }
 
     @Override
@@ -106,12 +108,11 @@ public class Play extends State {
                 }
             }
         }
+
         for(Enemy e : enemies) {
             e.render(batch);
         }
         player.render(batch);
-        debugFont.draw(batch, "Flags: " + String.format("0x%08X", player.getAABB().getCollisionFlags()),
-                player.getPosition().x + 45, player.getPosition().y);
         batch.end();
 
     }
@@ -129,7 +130,7 @@ public class Play extends State {
 
         content.loadTexture("Wall", "Terrain/Wall.png");
         content.loadTexture("BrokenWall", "Terrain/BrokenWall1.png");
-        content.loadTexture("Ladder", "Terrain/Ladder.png");
+        content.loadTexture("Spikes", "Terrain/Spikes.png");
         content.loadTexture("Ground", "Terrain/Ground.png");
 
         content.loadFont("Ubuntu", "UbuntuBold.ttf", 20);
