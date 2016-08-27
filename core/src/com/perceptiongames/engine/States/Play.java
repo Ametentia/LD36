@@ -113,16 +113,7 @@ public class Play extends State {
         debugFont.draw(batch, "Flags: " + String.format("0x%08X", player.getAABB().getCollisionFlags()),
                 player.getPosition().x + 45, player.getPosition().y);
         batch.end();
-        debug.begin(ShapeRenderer.ShapeType.Line);
-        debug.box(0, 0, 0, Game.WORLD_WIDTH, Game.WORLD_HEIGHT, 0);
-        for(Tile[] t : terrain) {
-            for(Tile tt : t) {
-                if(tt != null)
-                    tt.getAABB().debugRender(debug);
-            }
-        }
-        player.getAABB().debugRender(debug);
-        debug.end();
+
     }
 
     @Override
