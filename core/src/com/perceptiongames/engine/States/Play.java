@@ -2,6 +2,7 @@ package com.perceptiongames.engine.States;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.perceptiongames.engine.Entities.AABB;
@@ -19,6 +20,7 @@ import java.util.List;
 public class Play extends State {
 
     private ShapeRenderer debug;
+    private BitmapFont debugFont;
 
     private int levelNumber;
 
@@ -38,6 +40,7 @@ public class Play extends State {
         generateEntities();
 
         debug = new ShapeRenderer();
+        debugFont = content.getFont("Ubuntu");
     }
 
     @Override
@@ -46,11 +49,12 @@ public class Play extends State {
         for(Enemy e : enemies) {
             e.update(dt);
         }
-
         for(Tile[] t : terrain) {
             for(Tile tt : t) {
                 if(tt != null) {
-                    player.getAABB().overlaps(tt.getAABB());
+                    if(player.getAABB().overlaps(tt.getAABB())) {
+                        player.getAnimation(player.getAnimationKey()).setPosition(player.getPosition());
+                    }
                 }
             }
         }
@@ -98,6 +102,13 @@ public class Play extends State {
         batch.end();
         debug.begin(ShapeRenderer.ShapeType.Line);
         debug.box(0, 0, 0, Game.WORLD_WIDTH, Game.WORLD_HEIGHT, 0);
+        for(Tile[] t : terrain) {
+            for(Tile tt : t) {
+                if(tt != null)
+                    tt.getAABB().debugRender(debug);
+            }
+        }
+        player.getAABB().debugRender(debug);
         debug.end();
     }
 
@@ -129,6 +140,7 @@ public class Play extends State {
         playerLeft.setFlipX(true);
         AABB aabb = new AABB(new Vector2(100, 100), new Vector2(16, 32));
         player = new Player(playerStill, "idle", aabb);
+        player.setCamera(camera);
 
         player.addAnimation("moveLeft", playerLeft);
         player.addAnimation("moveRight", playerRight);

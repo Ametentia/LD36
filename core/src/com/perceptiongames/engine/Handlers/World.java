@@ -56,7 +56,7 @@ public class World {
 
     private void resetCollision() {
         for(Entity e : dynamicBodies) {
-            e.getAABB().setCollisionState(AABB.CollisionState.NONE);
+           // e.getAABB().setCollisionState(AABB.CollisionState.NONE);
         }
     }
 

@@ -39,7 +39,7 @@ public class TerrainGenerator {
     }
 
     public static final int ROOM_WIDTH = 10;
-    public static final int ROOM_HEIGHT = 9;
+    public static final int ROOM_HEIGHT = 8;
     public static final int GRID_SIZE = 4;
 
     private Tile[][] terrain;
@@ -119,13 +119,37 @@ public class TerrainGenerator {
             }
         }
 
+
+        /*generateRoom(0, 0, RoomType.None);
+        generateRoom(1, 0, RoomType.Standard);
+        generateRoom(2, 0, RoomType.Standard);
+        generateRoom(3, 0, RoomType.Down);
+
+        generateRoom(3, 1, RoomType.Up);
+        generateRoom(2, 1, RoomType.Standard);
+        generateRoom(1, 1, RoomType.Down);
+        generateRoom(0, 1, RoomType.Down);
+
+
+        generateRoom(0, 2, RoomType.None);
+        generateRoom(1, 2, RoomType.Up);
+        generateRoom(2, 2, RoomType.Standard);
+        generateRoom(3, 2, RoomType.Down);
+
+        generateRoom(0, 3, RoomType.None);
+        generateRoom(1, 3, RoomType.None);
+        generateRoom(2, 3, RoomType.None);
+        generateRoom(3, 3, RoomType.Up);*/
+
         for (int i = 0; i < GRID_SIZE; i++) {
             for (int j = 0; j < GRID_SIZE; j++) {
-                System.out.print(rooms[j][i].VALUE + "  ");
-                generateRoom(j, i, rooms[j][i]);
+                System.out.print(rooms[i][j].VALUE + "  ");
+                generateRoom(i, j, rooms[i][j]);
             }
             System.out.println("");
         }
+
+        System.out.println("");
     }
 
     private void getDir() {
@@ -141,7 +165,49 @@ public class TerrainGenerator {
 
     private void generateRoom(int xStart, int yStart, RoomType type) {
 
-        if(type == RoomType.None) return;
+        /*String file = Gdx.files.internal("Rooms/Cross/2").readString();
+
+        float xOffset = 40; //xStart * ROOM_WIDTH * Tile.SIZE + 40;
+        float yOffset = 40; // yStart * ROOM_HEIGHT * Tile.SIZE + 40;
+
+        int xIndex = 0; //(xStart * ROOM_WIDTH);
+        int yIndex = 0; //(yStart * ROOM_HEIGHT);
+
+        float halfSize = Tile.SIZE / 2;
+
+        int row = 0, col = 0;
+        String[] rows = file.split("\n");
+        for(String r : rows) {
+            for(char tile : r.toCharArray()) {
+                int texture = 0;
+                switch (tile) {
+                    case '0':
+                        texture = -1;
+                        break;
+                    case '1':
+                        texture = 0;
+                        break;
+                    case '2':
+                        texture = 1;
+                        break;
+                }
+
+                if(texture >= 0) {
+                    terrain[xIndex + col][yIndex + row] = new Tile(new Animation(textures[0], 1, 1, 1f),
+                            new AABB(xOffset + (Tile.SIZE * col), yOffset + (Tile.SIZE * row), halfSize, halfSize));
+                }
+
+                col++;
+            }
+            col = 0;
+            row++;
+        }
+
+        for(char tile : file.toCharArray()) {
+        }*/
+
+
+       // if (type == RoomType.None) return;
 
         float xOffset = xStart * ROOM_WIDTH * Tile.SIZE + 40;
         float yOffset = yStart * ROOM_HEIGHT * Tile.SIZE + 40;
@@ -152,48 +218,44 @@ public class TerrainGenerator {
         float halfSize = Tile.SIZE / 2;
 
         int room;
-        if(type == RoomType.None) {
+        if (type == RoomType.None) {
             room = 0;
-        }
-        else {
+        } else {
             room = random.nextInt(3);
         }
         String file = Gdx.files.internal("Rooms/" + type.PATH + "/" + room).readString();
+        String[] rows = file.split("\n");
 
         int row = 0, col = 0;
-        for(char tile : file.toCharArray()) {
-            int texture = -1;
-            switch (tile) {
-                case '0':
-                    texture = -1;
-                    break;
-                case '1':
-                    texture = 0;
-                    break;
-                case '2':
-                    if(random.nextBoolean())
-                        texture = 0;
-                    else
+        for (String r : rows) {
+            for (char tile : r.toCharArray()) {
+                int texture = -1;
+                switch (tile) {
+                    case '0':
                         texture = -1;
-                    break;
-                case '3':
-                    texture = 2;
-                    break;
-            }
-
-            if(texture > -1) {
-                terrain[xIndex + col][yIndex + row] = new Tile(new Animation(textures[0], 1, 1, 1f),
-                        new AABB(xOffset + (Tile.SIZE * col), yOffset + (Tile.SIZE * row), halfSize, halfSize));
-            }
-
-            col++;
-            if(col == ROOM_WIDTH) {
-                row++;
-                if(row == ROOM_HEIGHT) {
-                    row = 0;
+                        break;
+                    case '1':
+                        texture = 0;
+                        break;
+                    case '2':
+                        if (random.nextBoolean())
+                            texture = 0;
+                        else
+                            texture = -1;
+                        break;
+                    case '3':
+                        texture = 2;
+                        break;
                 }
-                col = 0;
+
+                if (texture > -1) {
+                    terrain[xIndex + col][yIndex + row] = new Tile(new Animation(textures[0], 1, 1, 1f),
+                            new AABB(xOffset + (Tile.SIZE * col), yOffset + (Tile.SIZE * row), halfSize, halfSize));
+                }
+                col++;
             }
+            row++;
+            col = 0;
         }
     }
 

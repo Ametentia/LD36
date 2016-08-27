@@ -2,31 +2,26 @@ package com.perceptiongames.engine.Entities;
 
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
-import com.perceptiongames.engine.Game;
 
 // A class to represent an Axis-aligned Bounding Box
 // Cannot be extended from
 public final class AABB {
 
-    // An enumeration for all of the possible
-    // collision states of the AABB
-    public enum CollisionState {
-        NONE,
-        TOP,
-        BOTTOM,
-        LEFT,
-        RIGHT,
+    public static final int NONE_BITS = 0x1;
+    public static final int TOP_BITS = 0x10;
+    public static final int BOTTOM_BITS = 0x100;
+    public static final int LEFT_BITS = 0x1000;
+    public static final int RIGHT_BITS = 0x10000;
 
-        SENSOR
-    }
+    public static final int SENSOR_BITS = 0x100000;
 
     // AABB represented by a centre point and its half width and half height
     private Vector2 centre;
     private Vector2 halfSize;
 
-    // The Current colliding state of the AABB
+    // The Current collisionFlags state of the AABB
     // See CollisionState above
-    private CollisionState colliding;
+    private int collisionFlags;
 
     private boolean isSensor;
 
@@ -60,7 +55,7 @@ public final class AABB {
     public AABB(Vector2 centre, Vector2 halfSize) {
         this.centre = new Vector2(centre);
         this.halfSize = new Vector2(halfSize);
-        colliding = CollisionState.NONE;
+        collisionFlags = NONE_BITS;
 
         isSensor = false;
     }
@@ -82,7 +77,7 @@ public final class AABB {
         if(!isSensor && !other.isSensor)
             collide(other);
         else
-            colliding = CollisionState.SENSOR;
+            collisionFlags |= SENSOR_BITS;
 
         return true;
     }
@@ -90,7 +85,7 @@ public final class AABB {
 
     /**
      * This is called if two AABBs overlap <br>
-     *     it will separate the two AABBs so they are colliding and not intersecting
+     *     it will separate the two AABBs so they are collisionFlags and not intersecting
      * @param other The second AABB which is overlapping with this
      */
     private void collide(AABB other) {
@@ -102,34 +97,19 @@ public final class AABB {
 
         if(top <= left && top <= right && top <= bottom) {
             this.setPosition(this.getPosition().x, other.getMinimum().y - this.getHeight());
-            colliding = CollisionState.TOP;
+            collisionFlags |= TOP_BITS;
         }
         else if(bottom <= left && bottom <= right && bottom <= top) {
             this.setPosition(this.getPosition().x, other.getMaximum().y);
-            colliding = CollisionState.BOTTOM;
+            collisionFlags |= BOTTOM_BITS;
         }
         else if(left <= right && left <= top && left <= bottom) {
             this.setPosition(other.getMinimum().x - this.getWidth(), this.getPosition().y);
-            colliding = CollisionState.LEFT;
+            collisionFlags |= LEFT_BITS;
         }
         else {
             this.setPosition(other.getMaximum().x, this.getPosition().y);
-            colliding = CollisionState.RIGHT;
-        }
-
-        if(getPosition().x < 0) {
-            this.setPosition(0, getPosition().y);
-        }
-        else if(getMaximum().x > Game.WORLD_WIDTH) {
-            setPosition(Game.WORLD_WIDTH - getWidth(), getPosition().y);
-        }
-
-        if(getPosition().x < 0) {
-            this.setPosition(getPosition().x, 0);
-        }
-        else if(getMaximum().y > Game.WORLD_HEIGHT) {
-            setPosition(getPosition().x, Game.WORLD_HEIGHT - getHeight());
-            colliding = CollisionState.TOP;
+            collisionFlags |= RIGHT_BITS;
         }
     }
 
@@ -143,16 +123,16 @@ public final class AABB {
     public Vector2 getMaximum() { return new Vector2(centre).add(halfSize); }
 
     // Returns the current collision state
-    public CollisionState getCollisionState() { return colliding; }
+    public int getCollisionFlags() { return collisionFlags; }
 
     public float getWidth() { return halfSize.x * 2; }
     public float getHeight() { return halfSize.y * 2; }
 
     // Setters
-    public void setCentre(Vector2 centre) { this.centre = centre; }
+    public void setCentre(Vector2 centre) { this.centre.set(centre); }
     public void setPosition(float x, float y) { setPosition(new Vector2(x, y)); }
     public void setPosition(Vector2 position) { setCentre(position.add(halfSize)); }
-    public void setCollisionState(CollisionState state) { this.colliding = state; }
+    public void setCollisionFlags(int flags) { collisionFlags = flags; }
     public void setSensor(boolean sensor) { this.isSensor = sensor; }
 
     // DEBUG Stuff

@@ -3,6 +3,8 @@ package com.perceptiongames.engine.Entities;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.perceptiongames.engine.Game;
 import com.perceptiongames.engine.Handlers.Animation;
@@ -11,6 +13,9 @@ public class Player extends Entity {
 
     private Vector2 velocity;
     private boolean onGround;
+
+    private ShapeRenderer renderer;
+    private OrthographicCamera camera;
 
     /**
      * Sets up the local variables for the player
@@ -23,6 +28,8 @@ public class Player extends Entity {
         velocity = new Vector2(); //Sets up a vector with values 0,0
 
         onGround = false; //Sets the player to off the ground by default
+
+        renderer = new ShapeRenderer();
     }
 
     /**
@@ -78,13 +85,41 @@ public class Player extends Entity {
     @Override
     public void update(float dt) {
 
-        switch (aabb.getCollisionState()) { //Checks if colliding
+        int flags = aabb.getCollisionFlags();
+        if((flags & AABB.TOP_BITS) == AABB.TOP_BITS) {
+            onGround = true;
+            velocity.y = 0;
+        }
+
+        if((flags & AABB.BOTTOM_BITS) == AABB.BOTTOM_BITS) {
+            onGround = false;
+            velocity.y = 0;
+        }
+
+        if((flags & AABB.LEFT_BITS) == AABB.LEFT_BITS) {
+            velocity.x = 0;
+        }
+
+        if((flags & AABB.LEFT_BITS) == AABB.LEFT_BITS) {
+            velocity.x = 0;
+        }
+
+        if(flags == AABB.NONE_BITS) {
+            if(getPosition().y + aabb.getHeight() == Game.WORLD_HEIGHT) { //If no collision, check if its on the world floor
+                onGround = true;
+            }
+            else {
+                onGround = false;
+            }
+        }
+
+        /*switch (aabb.getCollisionFlags()) { //Checks if colliding
             case TOP:
                 onGround = true; //If the player collides with the floor, set on ground to true and stop y movement
-                velocity.y = 0;
+                //velocity.y = 0;
                 break;
             case BOTTOM: //Sets the velocity to 0 if the players head hits the roof
-                velocity.y = 0;
+                //velocity.y = 0;
                 onGround = false;
                 break;
             case LEFT:
@@ -101,7 +136,7 @@ public class Player extends Entity {
                     onGround = false;
                 }
                 break;
-        }
+        }*/
 
         handleInput();
 
@@ -135,8 +170,18 @@ public class Player extends Entity {
             onGround = true;
         }
 
+        renderer.setProjectionMatrix(camera.combined);
+        renderer.begin(ShapeRenderer.ShapeType.Line);
+        renderer.setColor(1, 0, 0, 1);
+        aabb.debugRender(renderer);
         setPosition(newPos);
+        renderer.setColor(0, 1, 0, 1);
+        aabb.debugRender(renderer);
         super.update(dt);
+        renderer.setColor(0, 0, 1, 1);
+        aabb.debugRender(renderer);
+        renderer.end();
+        aabb.setCollisionFlags(AABB.NONE_BITS);
     }
 
     public Vector2 getVelocity() { return velocity; }
@@ -148,4 +193,6 @@ public class Player extends Entity {
     public void setVelocity(Vector2 v) {
         velocity.set(v);
     }
+
+    public void setCamera(OrthographicCamera camera) { this.camera = camera; }
 }
