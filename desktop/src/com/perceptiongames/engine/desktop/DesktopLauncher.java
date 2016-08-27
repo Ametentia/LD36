@@ -3,6 +3,7 @@ package com.perceptiongames.engine.desktop;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.perceptiongames.engine.Game;
+import org.lwjgl.Sys;
 
 public class DesktopLauncher {
 	public static void main (String[] arg) {
@@ -17,6 +18,7 @@ public class DesktopLauncher {
 
         // Prevents game from closing with exit code 255
         // Closes with exit code 0 like it should
+		System.setProperty("org.lwjgl.opengl.Window.undecorated", "true");
         config.forceExit = false;
 
 		new LwjglApplication(new Game(), config);

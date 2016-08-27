@@ -20,7 +20,6 @@ public final class AABB {
     private Vector2 halfSize;
 
     // The Current collisionFlags state of the AABB
-    // See CollisionState above
     private int collisionFlags;
 
     private boolean isSensor;
