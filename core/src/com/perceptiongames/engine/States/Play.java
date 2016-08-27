@@ -2,6 +2,7 @@ package com.perceptiongames.engine.States;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
@@ -31,6 +32,7 @@ public class Play extends State {
 
     private TerrainGenerator generator;
     private Tile[][] terrain;
+    private Texture bg;
 
     public Play(GameStateManager gsm) {
         super(gsm);
@@ -41,7 +43,9 @@ public class Play extends State {
 
         debug = new ShapeRenderer();
         debugFont = content.getFont("Ubuntu");
-        camera.zoom = 0.5f;
+        camera.zoom =0.5f;
+        bg = content.getTexture("Background");
+        bg.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
     }
 
     @Override
@@ -73,10 +77,10 @@ public class Play extends State {
             camera.translate(0, 10);
         }
         else if(Gdx.input.isKeyPressed(Input.Keys.Q)) {
-            camera.zoom = Math.max(camera.zoom - 0.2f, 0.5f);
+            camera.zoom = Math.max(camera.zoom - 0.2f, 0);
         }
         else if(Gdx.input.isKeyPressed(Input.Keys.E)) {
-            camera.zoom = Math.min(camera.zoom + 0.2f, 3f);
+            camera.zoom = Math.min(camera.zoom + 0.2f, 4f);
         }
         else if(Gdx.input.isKeyJustPressed(Input.Keys.R)) {
             player.reset(generator.getStartPosition());
@@ -94,6 +98,7 @@ public class Play extends State {
         batch.setProjectionMatrix(camera.combined);
         debug.setProjectionMatrix(camera.combined);
         batch.begin();
+        batch.draw(bg, -320, -180, Game.WORLD_WIDTH + 640, Game.WORLD_HEIGHT + 360, 0, 0, Game.WORLD_WIDTH/bg.getWidth(), Game.WORLD_HEIGHT/bg.getHeight());
         for(Tile[] t : terrain) {
             for(Tile tt : t) {
                 if(tt != null) {
