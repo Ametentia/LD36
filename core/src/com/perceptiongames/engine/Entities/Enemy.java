@@ -25,7 +25,9 @@ public class Enemy extends Entity {
 
         PosX += 60*MathUtils.sin(ticker);
 
-        ticker += 1/60;
+        setPosition(PosX, PosY);
+
+        ticker += dt;
 
     }
 
