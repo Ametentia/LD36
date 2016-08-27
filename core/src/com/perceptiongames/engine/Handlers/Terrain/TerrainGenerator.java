@@ -244,13 +244,13 @@ public class TerrainGenerator {
                         texture = random.nextInt(2);
                         break;
                     case '2':
+                        texture = 2;
+                        break;
+                    case '3':
                         if (random.nextBoolean())
                             texture = random.nextInt(2);
                         else
                             texture = -1;
-                        break;
-                    case '3':
-                        texture = 2;
                         break;
                 }
 
