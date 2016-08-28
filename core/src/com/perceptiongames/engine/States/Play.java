@@ -111,12 +111,12 @@ public class Play extends State {
                         }
                     }
                 }
-
-                if(player.getAABB().overlaps(current.getAABB())) {
-                    player.getAnimation(player.getAnimationKey()).setPosition(player.getPosition());
                 for(Enemy e: enemies) {
                     e.getAABB().overlaps(current.getAABB());
                 }
+                if(player.getAABB().overlaps(current.getAABB())) {
+                    player.getAnimation(player.getAnimationKey()).setPosition(player.getPosition());
+
                     if(current instanceof StandardTile) { standardTileCollision((StandardTile) current); }
                     else if(current instanceof SpearBlock) { spearBlockCollision((SpearBlock) current); }
                     else if(current instanceof Sensor) { sensorCollision((Sensor) current); }
@@ -260,7 +260,10 @@ public class Play extends State {
         content.loadTexture("Background", "Background.png");
         content.loadTexture("Badlogic", "badlogic.jpg");
         content.loadTexture("Block", "testBlock.png");
-        content.loadTexture("Enemy", "SoldierMove.png");
+        content.loadTexture("Enemy", "Soldier.png");
+        content.loadTexture("EnemyMove", "SoldierMove.png");
+        content.loadTexture("EnemyAttack", "SoldierAttack.png");
+
 
         content.loadTexture("Ladder", "Terrain/Ladder.png");
         content.loadTexture("SpearBlock", "Terrain/SpearBlock.png");
@@ -304,8 +307,15 @@ public class Play extends State {
         player.addAnimation("attackLeft", playerAttackLeft);
 
         enemies = new ArrayList<Enemy>();
-        Animation a = new Animation(content.getTexture("Enemy"),1,6,0.5f);
-        Enemy bad = new Enemy(a,"Walk", new AABB(new Vector2(200,100),new Vector2(40,40)));
+        Animation a = new Animation(content.getTexture("Enemy"),1,1,10f);
+
+        Enemy bad = new Enemy(a,"idle", new AABB(new Vector2(200,100),new Vector2(31,31)));
+        bad.addAnimation("attack",new Animation(content.getTexture("EnemyAttack"),1,7,0.1f));
+        a =new Animation(content.getTexture("EnemyMove"),1,6,0.5f);
+        bad.addAnimation("Right",a);
+        a =new Animation(content.getTexture("EnemyMove"),1,6,0.5f);
+        a.setFlipX(true);
+        bad.addAnimation("Left",a);
         enemies.add(bad);
 
         generator =  new TerrainGenerator(content);

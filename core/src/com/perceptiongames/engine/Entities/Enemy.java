@@ -6,6 +6,7 @@ import com.perceptiongames.engine.Game;
 import com.perceptiongames.engine.Handlers.Animation;
 
 import static com.badlogic.gdx.math.MathUtils.floor;
+import static com.badlogic.gdx.math.MathUtils.random;
 import static java.lang.Math.sin;
 
 public class Enemy extends Entity {
@@ -14,10 +15,19 @@ public class Enemy extends Entity {
     Vector2 pos = getPosition();
     Vector2 velocity = new Vector2();
     boolean onGround;
+    int[] actions;
+    int current;
 
     public Enemy(Animation animation, String animationName, AABB aabb) {
         super(animation, animationName, aabb);
         onGround=false;
+        actions = new int[4];
+        actions[0]=0;
+        actions[1]=1;
+        actions[2]=2;
+        actions[3]=3;
+        current=3;
+
     }
 
     @Override
@@ -25,6 +35,13 @@ public class Enemy extends Entity {
 
         float X = floor(pos.x/80);
         float Y = floor(pos.y/80);
+
+        if(ticker > 5)
+        {
+            ticker =0;
+            current = random.nextInt(4)+1;
+        }
+
 
         int flags = aabb.getCollisionFlags();
         if((flags & AABB.TOP_BITS) == AABB.TOP_BITS) {
@@ -63,7 +80,29 @@ public class Enemy extends Entity {
         {
             velocity.y=0;
         }
-        System.out.println("On ground" + onGround);
+        flags = aabb.getCollisionFlags();
+        switch(current) {
+            case 1:
+                velocity.x=75;
+                this.setCurrentAnimation("Right");
+                if((flags&AABB.RIGHT_BITS) == AABB.RIGHT_BITS) {
+                    velocity.add(0, -400);
+                }
+                break;
+            case 2:
+                velocity.x=-75;
+                this.setCurrentAnimation("Left");
+                if((flags&AABB.LEFT_BITS) == AABB.LEFT_BITS) {
+                    velocity.add(0,-400);
+                }
+                break;
+            case 3:
+                this.setCurrentAnimation("idle");
+                break;
+            case 4:
+                this.setCurrentAnimation("attack");
+                break;
+        }
         Vector2 newPos = new Vector2();
         newPos.x = getPosition().x + (velocity.x * dt); // Speed = distance / time, simple physics
         newPos.y = getPosition().y + (velocity.y * dt);
@@ -90,5 +129,9 @@ public class Enemy extends Entity {
         ticker += dt;
         super.update(dt);
         aabb.setCollisionFlags(AABB.NONE_BITS);
+    }
+    public void hit()
+    {
+        this.live=false;
     }
 }
