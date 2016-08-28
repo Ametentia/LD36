@@ -105,8 +105,10 @@ public class Play extends State {
                     }
 
                     if(current.isActive() && player.getPosition().y > current.getAABB().getMaximum().y) {
-                        if(Math.abs(player.getPosition().x - current.getAABB().getPosition().x) < Tile.SIZE)
+                        if(Math.abs(player.getPosition().x - current.getAABB().getPosition().x) < Tile.SIZE) {
                             ((FallingBlock) current).setVelocity(450f);
+                            ((FallingBlock) current).setPlayerColliding(true);
+                        }
                     }
                 }
 
@@ -121,10 +123,12 @@ public class Play extends State {
             }
         }
 
-        camera.position.set(
-                Math.max(Math.min(player.getAABB().getCentre().x, Game.WORLD_WIDTH - 320), 320),
-                Math.max(Math.min(player.getAABB().getCentre().y, Game.WORLD_HEIGHT - 180), 180),
-                0);
+        if(player.isLive()) {
+            camera.position.set(
+                    Math.max(Math.min(player.getAABB().getCentre().x, Game.WORLD_WIDTH - 320), 320),
+                    Math.max(Math.min(player.getAABB().getCentre().y, Game.WORLD_HEIGHT - 180), 180),
+                    0);
+        }
 
         camera.update();
     }
@@ -190,6 +194,10 @@ public class Play extends State {
         float x = Math.abs(player.getPosition().x - tile.getAnimation().getPosition().x);
         if(tile.isFacingLeft()) {
             if (x < 80 && player.getAABB().hasCollisionBit(AABB.LEFT_BITS))
+                player.hit();
+        }
+        else {
+            if (x > 80 && player.getAABB().hasCollisionBit(AABB.RIGHT_BITS))
                 player.hit();
         }
     }
@@ -271,8 +279,8 @@ public class Play extends State {
         Animation playerRight = new Animation(content.getTexture("PlayerMove"), 1, 5, 0.1f);
         Animation playerPushLeft = new Animation(content.getTexture("PlayerPush"), 1, 5, 0.1f);
         Animation playerPushRight = new Animation(content.getTexture("PlayerPush"), 1, 5, 0.1f);
-        Animation playerAttackLeft = new Animation(content.getTexture("PlayerAttackLeft"), 1, 21, 0.05f);
-        Animation playerAttackRight = new Animation(content.getTexture("PlayerAttackRight"), 1, 21, 0.05f);
+        Animation playerAttackLeft = new Animation(content.getTexture("PlayerAttackLeft"), 1, 4, 0.05f);
+        Animation playerAttackRight = new Animation(content.getTexture("PlayerAttackRight"), 1, 4, 0.05f);
         playerAttackLeft.setOffset(-32, 0);
 
         playerLeft.setFlipX(true);

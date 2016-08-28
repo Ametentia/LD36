@@ -44,10 +44,10 @@ public class FallingBlock extends Tile {
         }
     }
 
+    public float getVelocity() { return velocity; }
+    public boolean isAlive() { return alive; }
+    public boolean isPlayerColliding() { return isPlayerColliding; }
+
     public void setPlayerColliding(boolean c) { isPlayerColliding = c; }
     public void setVelocity(float y) { velocity = y; }
-
-    public boolean isAlive() { return alive; }
-
-    public boolean isPlayerColliding() { return isPlayerColliding; }
 }
