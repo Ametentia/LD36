@@ -67,11 +67,11 @@ public class Game extends ApplicationAdapter {
             time -= DELTA;
 
             gsm.update(DELTA);
-            gsm.render();
 
             if(Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE))
                 Gdx.app.exit();
         }
+        gsm.render();
 	}
 	
 	@Override

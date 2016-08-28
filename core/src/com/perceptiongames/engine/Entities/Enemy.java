@@ -9,23 +9,17 @@ import static java.lang.Math.sin;
 
 public class Enemy extends Entity {
 
-    @Override
+    float ticker;
+    Vector2 pos = getPosition();
 
+    @Override
     public void update(float dt) {
         super.update(dt);
 
-        float ticker = 0;
+        float X = floor(pos.x/80);
+        float Y = floor(pos.y/80);
 
-        Vector2 Pos = getPosition();
-        float PosX = Pos.x;
-        float PosY = Pos.y;
-
-        float X = floor(PosX/80);
-        float Y = floor(PosY/80);
-
-        PosX += 60*MathUtils.sin(ticker);
-
-        setPosition(PosX, PosY);
+        pos.add(60*MathUtils.sin(ticker),0);
 
         ticker += dt;
 

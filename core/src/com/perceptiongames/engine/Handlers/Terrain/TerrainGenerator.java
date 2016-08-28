@@ -52,12 +52,14 @@ public class TerrainGenerator {
     private boolean left, down;
 
     public TerrainGenerator(Content content) {
-        textures = new Texture[5];
-        textures[0] = content.getTexture("Wall");
+        textures = new Texture[7];
+        textures[0] = content.getTexture("BrokenWall1");
         textures[1] = content.getTexture("BrokenWall");
-        textures[2] = content.getTexture("Spikes");
-        textures[3] = content.getTexture("SpearBlock");
-        textures[4] = content.getTexture("Ladder");
+        textures[2] = content.getTexture("BrokenWall2");
+        textures[3] = content.getTexture("Spikes");
+        textures[4] = content.getTexture("SpearBlock");
+        textures[5] = content.getTexture("Ladder");
+
 
         terrain = new Tile[GRID_SIZE * ROOM_WIDTH][GRID_SIZE * ROOM_HEIGHT];
 
@@ -161,7 +163,7 @@ public class TerrainGenerator {
         if (type == RoomType.None) {
             room = 0;
         } else {
-            room = random.nextInt(3);
+            room = random.nextInt(5);
         }
 
         String file = Gdx.files.internal("Rooms/" + type.PATH + "/" + room).readString();
@@ -176,19 +178,19 @@ public class TerrainGenerator {
                         texture = -1;
                         break;
                     case '1':
-                        texture = random.nextInt(2);
+                        texture = random.nextInt(3);
                         break;
                     case '2':
-                        texture = 2;
+                        texture = 3;
                         break;
                     case '9':
-                        if (random.nextBoolean())
-                            texture = random.nextInt(2);
+                        if (random.nextBoolean() )
+                            texture = random.nextInt(3);
                         else
                             texture = -1;
                         break;
                     case '4':
-                        terrain[xIndex + col][yIndex + row] = new FallingBlock(textures[0],
+                        terrain[xIndex + col][yIndex + row] = new FallingBlock(textures[random.nextInt(3)],
                                 new AABB(xOffset + (Tile.SIZE * col), yOffset + (Tile.SIZE * row), halfSize, halfSize));
                         break;
                     case '3':
@@ -196,28 +198,28 @@ public class TerrainGenerator {
                                 new AABB(xOffset + (Tile.SIZE * col), yOffset + (Tile.SIZE * row), halfSize, halfSize));
                         break;
                     case '6':
-                        terrain[xIndex + col][yIndex + row] = new SpearBlock(new Animation(textures[3], 1, 16, 0.1f),
+                        terrain[xIndex + col][yIndex + row] = new SpearBlock(new Animation(textures[4], 1, 50, 0.028f),
                                 new AABB(xOffset + (Tile.SIZE * col), yOffset + (Tile.SIZE * row), halfSize, halfSize), true);
 
                         break;
                     case '7':
-                        terrain[xIndex + col][yIndex + row] = new SpearBlock(new Animation(textures[3], 1, 16, 0.1f),
+                        terrain[xIndex + col][yIndex + row] = new SpearBlock(new Animation(textures[4], 1, 50, 0.028f),
                                 new AABB(xOffset + (Tile.SIZE * col), yOffset + (Tile.SIZE * row), halfSize, halfSize), false);
                         break;
                     case 'L':
-                        texture = 4;
+                        texture = 5;
                         break;
                 }
 
                 if (texture > -1) {
                     terrain[xIndex + col][yIndex + row] = new StandardTile(textures[texture],
                             new AABB(xOffset + (Tile.SIZE * col), yOffset + (Tile.SIZE * row), halfSize, halfSize),
-                            texture == 4);
+                            texture == 5);
 
-                    if(texture == 4) {
+                    if(texture == 5) {
                         terrain[xIndex + col][yIndex + row].getAABB().setSensor(true);
                     }
-                    if(texture == 2) terrain[xIndex + col][yIndex + row].setDamage(1);
+                    if(texture == 3) terrain[xIndex + col][yIndex + row].setDamage(1);
                 }
 
 

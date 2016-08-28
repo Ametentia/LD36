@@ -51,7 +51,7 @@ public class Play extends State {
         bg.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
 
         deathPoints = new ArrayList<Vector2>();
-        showDeathPoints = false;
+        showDeathPoints = true;
         restarted = false;
     }
 
@@ -191,18 +191,6 @@ public class Play extends State {
         if(tile.isFacingLeft()) {
             if (x < 80 && player.getAABB().hasCollisionBit(AABB.LEFT_BITS))
                 player.hit();
-            else if (x < 80 && player.getAABB().hasCollisionBit(AABB.BOTTOM_BITS))
-                player.hit();
-            else if (x < 80 && player.getAABB().hasCollisionBit(AABB.TOP_BITS))
-                player.hit();
-        }
-        else {
-            if (x > 80 && player.getAABB().hasCollisionBit(AABB.RIGHT_BITS))
-                player.hit();
-            else if (x > 80 && player.getAABB().hasCollisionBit(AABB.BOTTOM_BITS))
-                player.hit();
-            else if (x > 80 && player.getAABB().hasCollisionBit(AABB.TOP_BITS))
-                player.hit();
         }
     }
 
@@ -265,6 +253,8 @@ public class Play extends State {
         content.loadTexture("SpearBlock", "Terrain/SpearBlock.png");
         content.loadTexture("Wall", "Terrain/Wall.png");
         content.loadTexture("BrokenWall", "Terrain/BrokenWall1.png");
+        content.loadTexture("BrokenWall1", "Terrain/BrokenWall2.png");
+        content.loadTexture("BrokenWall2", "Terrain/BrokenWall3.png");
         content.loadTexture("Spikes", "Terrain/Spikes.png");
         content.loadTexture("Ground", "Terrain/Ground.png");
 

@@ -36,15 +36,15 @@ public class SpearBlock extends Tile {
 
             animation.update(dt);
 
-            if (animation.getCurrentFrame() < 9) {
-                aabb.setHalfSize(40 + (5 * animation.getCurrentFrame()), aabb.getHalfSize().y);
+            if (animation.getCurrentFrame() < 28) {
+                aabb.setHalfSize(40 + (1.6f * animation.getCurrentFrame()), aabb.getHalfSize().y);
                 if(facingLeft) aabb.setCentre(new Vector2(animation.getPosition().x + 120
-                        - (5 * animation.getCurrentFrame()), aabb.getCentre().y));
+                        - (1.6f * animation.getCurrentFrame()), aabb.getCentre().y));
             } else {
 
-                aabb.setHalfSize(40 + (5 * (animation.getTotalFrames() - animation.getCurrentFrame())), aabb.getHalfSize().y);
+                aabb.setHalfSize(40 + (1.6f * (animation.getTotalFrames() - animation.getCurrentFrame())), aabb.getHalfSize().y);
                 if(facingLeft) aabb.setCentre(new Vector2(animation.getPosition().x + 120
-                        - (5 * (animation.getTotalFrames() - animation.getCurrentFrame())), aabb.getCentre().y));
+                        - (1.6f * (animation.getTotalFrames() - animation.getCurrentFrame())), aabb.getCentre().y));
             }
             if(!facingLeft) {
                 aabb.setPosition(animation.getPosition());
