@@ -130,9 +130,11 @@ public final class AABB {
     // Setters
     public void setCentre(Vector2 centre) { this.centre.set(centre); }
     public void setPosition(float x, float y) { setPosition(new Vector2(x, y)); }
-    public void setPosition(Vector2 position) { setCentre(position.add(halfSize)); }
+    public void setPosition(Vector2 position) { setCentre(new Vector2(position).add(halfSize)); }
     public void setCollisionFlags(int flags) { collisionFlags = flags; }
     public void setSensor(boolean sensor) { this.isSensor = sensor; }
+
+    public void setHalfSize(float w, float h) { halfSize.set(w, h); }
 
     // DEBUG Stuff
     // This will draw the AABB as an outline on screen

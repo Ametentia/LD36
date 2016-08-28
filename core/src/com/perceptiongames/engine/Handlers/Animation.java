@@ -111,6 +111,8 @@ public class Animation {
     public boolean isFlipX() { return flipX; }
     public boolean isFlipY() { return flipY; }
     public boolean isFinished() { return finished; }
+    public int getCurrentFrame() { return currentFrame; }
+    public int getTotalFrames() { return totalFrames; }
 
     // Setters
     public void setPosition(Vector2 position) {

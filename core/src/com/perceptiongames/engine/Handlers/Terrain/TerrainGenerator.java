@@ -52,10 +52,12 @@ public class TerrainGenerator {
     private boolean left, down;
 
     public TerrainGenerator(Content content) {
-        textures = new Texture[3];
+        textures = new Texture[5];
         textures[0] = content.getTexture("Wall");
         textures[1] = content.getTexture("BrokenWall");
         textures[2] = content.getTexture("Spikes");
+        textures[3] = content.getTexture("SpearBlock");
+        textures[4] = content.getTexture("Ladder");
 
         terrain = new Tile[GRID_SIZE * ROOM_WIDTH][GRID_SIZE * ROOM_HEIGHT];
 
@@ -152,10 +154,8 @@ public class TerrainGenerator {
                 System.out.print(rooms[i][j].VALUE + "  ");
                 generateRoom(i, j, rooms[i][j]);
             }
-            System.out.println("");
+             System.out.println("");
         }
-
-        System.out.println("");
     }
 
     private void getDir() {
@@ -171,50 +171,6 @@ public class TerrainGenerator {
 
     private void generateRoom(int xStart, int yStart, RoomType type) {
 
-        /*String file = Gdx.files.internal("Rooms/Cross/2").readString();
-
-        float xOffset = 40; //xStart * ROOM_WIDTH * Tile.SIZE + 40;
-        float yOffset = 40; // yStart * ROOM_HEIGHT * Tile.SIZE + 40;
-
-        int xIndex = 0; //(xStart * ROOM_WIDTH);
-        int yIndex = 0; //(yStart * ROOM_HEIGHT);
-
-        float halfSize = Tile.SIZE / 2;
-
-        int row = 0, col = 0;
-        String[] rows = file.split("\n");
-        for(String r : rows) {
-            for(char tile : r.toCharArray()) {
-                int texture = 0;
-                switch (tile) {
-                    case '0':
-                        texture = -1;
-                        break;
-                    case '1':
-                        texture = 0;
-                        break;
-                    case '2':
-                        texture = 1;
-                        break;
-                }
-
-                if(texture >= 0) {
-                    terrain[xIndex + col][yIndex + row] = new Tile(new Animation(textures[0], 1, 1, 1f),
-                            new AABB(xOffset + (Tile.SIZE * col), yOffset + (Tile.SIZE * row), halfSize, halfSize));
-                }
-
-                col++;
-            }
-            col = 0;
-            row++;
-        }
-
-        for(char tile : file.toCharArray()) {
-        }*/
-
-
-       // if (type == RoomType.None) return;
-
         float xOffset = xStart * ROOM_WIDTH * Tile.SIZE + 40;
         float yOffset = yStart * ROOM_HEIGHT * Tile.SIZE + 40;
 
@@ -229,6 +185,7 @@ public class TerrainGenerator {
         } else {
             room = random.nextInt(3);
         }
+
         String file = Gdx.files.internal("Rooms/" + type.PATH + "/" + room).readString();
         String[] rows = file.split("\n");
 
@@ -246,20 +203,48 @@ public class TerrainGenerator {
                     case '2':
                         texture = 2;
                         break;
-                    case '3':
+                    case '9':
                         if (random.nextBoolean())
                             texture = random.nextInt(2);
                         else
                             texture = -1;
                         break;
+                    case '4':
+                        terrain[xIndex + col][yIndex + row] = new FallingBlock(textures[0],
+                                new AABB(xOffset + (Tile.SIZE * col), yOffset + (Tile.SIZE * row), halfSize, halfSize));
+                        break;
+                    case '3':
+                        terrain[xIndex + col][yIndex + row] = new Sensor(yIndex + col, xIndex + col,
+                                new AABB(xOffset + (Tile.SIZE * col), yOffset + (Tile.SIZE * row), halfSize, halfSize));
+
+                        terrain[xIndex + col][yIndex + row].getAABB().setSensor(true);
+                        break;
+                    case '6': case '7':
+                        terrain[xIndex + col][yIndex + row] = new SpearBlock(new Animation(textures[3], 1, 16, 0.1f),
+                                new AABB(xOffset + (Tile.SIZE * col), yOffset + (Tile.SIZE * row), halfSize, halfSize));
+                        break;
+                    case 'L':
+                        texture = 4;
+                        break;
                 }
 
                 if (texture > -1) {
-                    terrain[xIndex + col][yIndex + row] = new Tile(textures[texture],
+                    terrain[xIndex + col][yIndex + row] = new StandardTile(textures[texture],
                             new AABB(xOffset + (Tile.SIZE * col), yOffset + (Tile.SIZE * row), halfSize, halfSize));
 
+                    if(texture == 4) {
+                        terrain[xIndex + col][yIndex + row].getAABB().setSensor(true);
+                        ((StandardTile)terrain[xIndex + col][yIndex + row]).setLadder(true);
+                    }
                     if(texture == 2) terrain[xIndex + col][yIndex + row].setDamage(1);
                 }
+
+
+                if(terrain[xIndex + col][yIndex + row] != null) {
+                    terrain[xIndex + col][yIndex + row].setRow(yIndex + row);
+                    terrain[xIndex + col][yIndex + row].setColumn(xIndex + col);
+                }
+
                 col++;
             }
             row++;

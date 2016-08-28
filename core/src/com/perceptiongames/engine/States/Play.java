@@ -12,8 +12,7 @@ import com.perceptiongames.engine.Entities.Player;
 import com.perceptiongames.engine.Game;
 import com.perceptiongames.engine.Handlers.Animation;
 import com.perceptiongames.engine.Handlers.GameStateManager;
-import com.perceptiongames.engine.Handlers.Terrain.TerrainGenerator;
-import com.perceptiongames.engine.Handlers.Terrain.Tile;
+import com.perceptiongames.engine.Handlers.Terrain.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,6 +83,9 @@ public class Play extends State {
         else if(Gdx.input.isKeyJustPressed(Input.Keys.P)){
             showDeathPoints = !showDeathPoints;
         }
+        else if(Gdx.input.isKeyJustPressed(Input.Keys.V)) {
+            terrain[3][0].setActive(true);
+        }
 
         player.update(dt);
         for(Enemy e : enemies) {
@@ -92,14 +94,49 @@ public class Play extends State {
         for(Tile[] t : terrain) {
             for(Tile tt : t) {
                 if(tt != null) {
-                    if(player.getAABB().overlaps(tt.getAABB())) {
-                        player.getAnimation(player.getAnimationKey()).setPosition(player.getPosition());
-                        if(tt.getDamage() > 0) {
-                            player.hit();
-                            if(!player.isLive() && !restarted) {
-                                deathPoints.add(new Vector2(player.getAABB().getCentre()));
-                                player.incrementDeaths();
-                                restarted = true;
+                    if(tt instanceof SpearBlock)
+                        tt.update(dt);
+                    if(player.isLive()) {
+                        if (player.getAABB().overlaps(tt.getAABB())) {
+                            if(tt instanceof StandardTile) {
+                                if(((StandardTile) tt).isLadder()) {
+                                    player.setOnLadder();
+                                }
+                            }
+                            player.getAnimation(player.getAnimationKey()).setPosition(player.getPosition());
+                            if (tt instanceof SpearBlock) {
+                                float x = Math.abs(player.getPosition().x - tt.getAABB().getPosition().x);
+                                if (x > 80 && (player.getAABB().getCollisionFlags() & AABB.RIGHT_BITS) == AABB.RIGHT_BITS)
+                                    player.hit();
+                                else if (x > 80 && (player.getAABB().getCollisionFlags() & AABB.BOTTOM_BITS) == AABB.BOTTOM_BITS)
+                                    player.hit();
+                                else if (x > 80 && (player.getAABB().getCollisionFlags() & AABB.TOP_BITS) == AABB.TOP_BITS)
+                                    player.hit();
+                            } else if (tt.getDamage() > 0) {
+                                player.hit();
+                                if (!player.isLive() && !restarted) {
+                                    deathPoints.add(new Vector2(player.getAABB().getCentre()));
+                                    player.incrementDeaths();
+                                    restarted = true;
+                                }
+                            } else if (tt instanceof Sensor) {
+                                ((Sensor) tt).setPlayerColliding(true);
+                                int row = tt.getRow();
+                                int col = tt.getColumn();
+                                Tile[] surrounding = getSurrounding(col, row);
+                                for(Tile tile : surrounding) {
+                                    if(tile instanceof SpearBlock) {
+                                        tile.setActive(true);
+                                    }
+                                    else if(tile instanceof FallingBlock) {
+                                        if(player.getAABB().overlaps(tile.getAABB())) {
+                                            terrain[tile.getColumn()][tile.getRow()] = null;
+                                        }
+                                        else {
+                                            terrain[tile.getColumn()][tile.getRow()].setActive(true);
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -135,11 +172,24 @@ public class Play extends State {
         player.render(batch);
         mouse.set(100, 100, 0);
         camera.unproject(mouse);
-        debugFont.draw(batch, "Number of Deaths: " + player.getNumberDeaths(), mouse.x, mouse.y);
+        debugFont.draw(batch, "Flags: " + String.format("0x%08X", player.getAABB().getCollisionFlags()), mouse.x, mouse.y);
+        mouse.set(100, 150, 0);
+        camera.unproject(mouse);
+        debugFont.draw(batch, "On Ladder: " + player.isOnLadder(), mouse.x, mouse.y);
+        mouse.set(100, 200, 0);
+        camera.unproject(mouse);
+        debugFont.draw(batch, "Velocity: " + player.getVelocity(), mouse.x, mouse.y);
+
         batch.end();
 
         debug.begin(ShapeRenderer.ShapeType.Line);
         player.getAABB().debugRender(debug);
+        for(Tile[] t : terrain) {
+            for(Tile tt : t) {
+                if(tt != null)
+                    tt.getAABB().debugRender(debug);
+            }
+        }
         debug.end();
 
         if(showDeathPoints) {
@@ -155,6 +205,22 @@ public class Play extends State {
     @Override
     public void dispose() {}
 
+    private Tile[] getSurrounding(int col, int row) {
+        Tile[] s = new Tile[8];
+
+        s[0] = terrain[col - 1][row - 1];
+        s[1] = terrain[col][row - 1];
+        s[2] = terrain[col + 1][row - 1];
+
+        s[3] = terrain[col - 1][row];
+        s[4] = terrain[col + 1][row];
+
+        s[5] = terrain[col - 1][row + 1];
+        s[6] = terrain[col][row + 1];
+        s[7] = terrain[col + 1][row + 1];
+        return s;
+    }
+
     private void loadContent() {
         content.loadTexture("PlayerIdle", "PlayerIdle.png");
         content.loadTexture("PlayerMove", "PlayerRun.png");
@@ -165,6 +231,8 @@ public class Play extends State {
         content.loadTexture("Badlogic", "badlogic.jpg");
         content.loadTexture("Block", "testBlock.png");
 
+        content.loadTexture("Ladder", "Terrain/Ladder.png");
+        content.loadTexture("SpearBlock", "Terrain/SpearBlock.png");
         content.loadTexture("Wall", "Terrain/Wall.png");
         content.loadTexture("BrokenWall", "Terrain/BrokenWall1.png");
         content.loadTexture("Spikes", "Terrain/Spikes.png");
@@ -191,7 +259,6 @@ public class Play extends State {
 
         AABB aabb = new AABB(new Vector2(100, 100), new Vector2(16, 32));
         player = new Player(playerStill, "idle", aabb);
-        player.setCamera(camera);
 
         player.addAnimation("moveLeft", playerLeft);
         player.addAnimation("moveRight", playerRight);
