@@ -34,6 +34,8 @@ public abstract class Tile {
     public int getRow() { return row; }
     public int getColumn() { return column; }
 
+    public boolean isActive() { return active; }
+
     public void setDamage(int dmg) { damage = dmg; }
     public void setActive(boolean a) { active = a; }
 

@@ -57,7 +57,7 @@ public abstract class Entity {
     }
     public void setCurrentAnimation(String animation) {
         if(!animations.containsKey(animation))
-            throw new IllegalArgumentException("Error: Animation " + animation +" does not exist in this entity");
+            throw new IllegalArgumentException("Error: Animation " + animation + " does not exist in this entity");
 
         prevAnimation = currentAnimation.equals(animation) ? prevAnimation : currentAnimation;
         currentAnimation = animation;
@@ -65,9 +65,9 @@ public abstract class Entity {
 
     public void setCurrentAnimation(String animation, int plays) {
         if(!animations.containsKey(animation))
-            throw new IllegalArgumentException("Error: Animation " + animation +" does not exist in this entity");
+            throw new IllegalArgumentException("Error: Animation " + animation + " does not exist in this entity");
 
-        prevAnimation = currentAnimation.equals(animation) ? prevAnimation : currentAnimation;
+        prevAnimation = "idle";
         currentAnimation = animation;
         animations.get(currentAnimation).setMaxPlays(plays);
     }
