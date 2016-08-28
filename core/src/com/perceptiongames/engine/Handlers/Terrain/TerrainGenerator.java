@@ -127,28 +127,6 @@ public class TerrainGenerator {
             }
         }
 
-
-        /*generateRoom(0, 0, RoomType.None);
-        generateRoom(1, 0, RoomType.Standard);
-        generateRoom(2, 0, RoomType.Standard);
-        generateRoom(3, 0, RoomType.Down);
-
-        generateRoom(3, 1, RoomType.Up);
-        generateRoom(2, 1, RoomType.Standard);
-        generateRoom(1, 1, RoomType.Down);
-        generateRoom(0, 1, RoomType.Down);
-
-
-        generateRoom(0, 2, RoomType.None);
-        generateRoom(1, 2, RoomType.Up);
-        generateRoom(2, 2, RoomType.Standard);
-        generateRoom(3, 2, RoomType.Down);
-
-        generateRoom(0, 3, RoomType.None);
-        generateRoom(1, 3, RoomType.None);
-        generateRoom(2, 3, RoomType.None);
-        generateRoom(3, 3, RoomType.Up);*/
-
         for (int i = 0; i < GRID_SIZE; i++) {
             for (int j = 0; j < GRID_SIZE; j++) {
                 System.out.print(rooms[i][j].VALUE + "  ");
@@ -214,14 +192,17 @@ public class TerrainGenerator {
                                 new AABB(xOffset + (Tile.SIZE * col), yOffset + (Tile.SIZE * row), halfSize, halfSize));
                         break;
                     case '3':
-                        terrain[xIndex + col][yIndex + row] = new Sensor(yIndex + col, xIndex + col,
+                        terrain[xIndex + col][yIndex + row] = new Sensor(yIndex + row, xIndex + col,
                                 new AABB(xOffset + (Tile.SIZE * col), yOffset + (Tile.SIZE * row), halfSize, halfSize));
-
-                        terrain[xIndex + col][yIndex + row].getAABB().setSensor(true);
                         break;
-                    case '6': case '7':
+                    case '6':
                         terrain[xIndex + col][yIndex + row] = new SpearBlock(new Animation(textures[3], 1, 16, 0.1f),
-                                new AABB(xOffset + (Tile.SIZE * col), yOffset + (Tile.SIZE * row), halfSize, halfSize));
+                                new AABB(xOffset + (Tile.SIZE * col), yOffset + (Tile.SIZE * row), halfSize, halfSize), true);
+
+                        break;
+                    case '7':
+                        terrain[xIndex + col][yIndex + row] = new SpearBlock(new Animation(textures[3], 1, 16, 0.1f),
+                                new AABB(xOffset + (Tile.SIZE * col), yOffset + (Tile.SIZE * row), halfSize, halfSize), false);
                         break;
                     case 'L':
                         texture = 4;
@@ -230,11 +211,11 @@ public class TerrainGenerator {
 
                 if (texture > -1) {
                     terrain[xIndex + col][yIndex + row] = new StandardTile(textures[texture],
-                            new AABB(xOffset + (Tile.SIZE * col), yOffset + (Tile.SIZE * row), halfSize, halfSize));
+                            new AABB(xOffset + (Tile.SIZE * col), yOffset + (Tile.SIZE * row), halfSize, halfSize),
+                            texture == 4);
 
                     if(texture == 4) {
                         terrain[xIndex + col][yIndex + row].getAABB().setSensor(true);
-                        ((StandardTile)terrain[xIndex + col][yIndex + row]).setLadder(true);
                     }
                     if(texture == 2) terrain[xIndex + col][yIndex + row].setDamage(1);
                 }
@@ -251,86 +232,6 @@ public class TerrainGenerator {
             col = 0;
         }
     }
-
-   /*
-     * Creates a new room base on the Room Type given
-     * @param xStart Position on the grid width
-     * @param yStart Position on the grid height
-     * @param type Type of room to create
-
-    private void generateRoom(int xStart, int yStart, RoomType type) {
-        if(xStart >= GRID_SIZE || yStart >= GRID_SIZE)
-            throw new ValueException("Error: xStart and yStart must be less than GRID SIZE\nxStart: " +
-                    xStart + "\nyStart: " + yStart + "\nGRID_SIZE: " + GRID_SIZE);
-
-        float xOffset = xStart * ROOM_WIDTH * Tile.SIZE + 40;
-        float yOffset = yStart * ROOM_HEIGHT * Tile.SIZE + 40;
-
-        int xIndex = (xStart * ROOM_WIDTH);
-        int yIndex = (yStart * ROOM_HEIGHT);
-
-        float halfSize = Tile.SIZE / 2;
-
-        int seed;
-        boolean createTile;
-        for (int i = 0; i < ROOM_WIDTH; i++) {
-            for (int j = 0; j < ROOM_HEIGHT; j++) {
-                seed = 0; //random.nextInt(0);
-                createTile = false;
-                switch (type) {
-                    case Standard:
-                        if(j != 4 && seed < 15) { createTile = true; }
-                        break;
-                    case Down:
-                        if(j < 4 && seed < 10) { createTile = true; }
-                        else if(j != 4 && i != 5 && seed < 13) { createTile = true; }
-                        break;
-                    case Up:
-                        if(j > 4 && seed < 17) { createTile = true; }
-                        else if(j != 4 && i != 5 && seed < 14) { createTile = true; }
-                        break;
-                    case Cross:
-                        if(j != 4 && i != 5 && seed < 15) { createTile = true; }
-                        break;
-                    case None:
-                        if(seed < 15) { createTile = true; }
-                        break;
-                }
-
-                if(createTile) {
-                    terrain[xIndex + i][yIndex + j] = new Tile(new Animation(textures[0], 1, 1, 1f),
-                            new AABB(xOffset + (Tile.SIZE * i), yOffset + (Tile.SIZE * j), halfSize, halfSize));
-                }
-
-            }
-        }
-    }*/
-
-    /*public void update(float dt) {
-        for (int i = 0; i < (GRID_SIZE * ROOM_WIDTH); i++) {
-            for (int j = 0; j < (GRID_SIZE * ROOM_HEIGHT); j++) {
-                if(terrain[i][j] != null)
-                    terrain[i][j].update(dt);
-            }
-        }
-    }
-    public void render(SpriteBatch batch) {
-        for (int i = 0; i < (GRID_SIZE * ROOM_WIDTH); i++) {
-            for (int j = 0; j < (GRID_SIZE * ROOM_HEIGHT); j++) {
-                if(terrain[i][j] != null)
-                    terrain[i][j].render(batch);
-            }
-        }
-    }
-
-    public void debugRender(ShapeRenderer sr) {
-        for (int i = 0; i < (GRID_SIZE * ROOM_WIDTH); i++) {
-            for (int j = 0; j < (GRID_SIZE * ROOM_HEIGHT); j++) {
-                if(terrain[i][j] != null)
-                    terrain[i][j].getAABB().debugRender(sr);
-            }
-        }
-    }*/
 
     public Tile[][] getTerrain() {
         return terrain;

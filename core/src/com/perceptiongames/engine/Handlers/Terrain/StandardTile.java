@@ -10,11 +10,12 @@ public class StandardTile extends Tile {
     private Texture texture;
     private boolean isLadder;
 
-    public StandardTile(Texture texture, AABB aabb) {
+    public StandardTile(Texture texture, AABB aabb, boolean ladder) {
         super(aabb);
 
         this.texture = texture;
-        isLadder = false;
+        isLadder = ladder;
+        aabb.setSensor(ladder);
     }
 
     @Override

@@ -127,6 +127,8 @@ public final class AABB {
     public float getWidth() { return halfSize.x * 2; }
     public float getHeight() { return halfSize.y * 2; }
 
+    public boolean hasCollisionBit(int bits) { return (collisionFlags & bits) == bits; }
+
     // Setters
     public void setCentre(Vector2 centre) { this.centre.set(centre); }
     public void setPosition(float x, float y) { setPosition(new Vector2(x, y)); }

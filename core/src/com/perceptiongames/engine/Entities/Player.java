@@ -1,13 +1,13 @@
 package com.perceptiongames.engine.Entities;
 
-import com.badlogic.gdx.Application;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.Vector2;
 import com.perceptiongames.engine.Game;
 import com.perceptiongames.engine.Handlers.Animation;
+
+import java.util.HashMap;
 
 public class Player extends Entity {
 
@@ -70,17 +70,19 @@ public class Player extends Entity {
         else if(Gdx.input.isKeyPressed(Input.Keys.D)) {
             if(Gdx.input.isTouched()) {
                 setCurrentAnimation("attackRight", 1);
+
                 if(onGround) velocity.x = 0;
             }
             else if(!getAnimationKey().contains("attack")) {
-                setVelocity(500f, velocity.y); //Sets the velocity to the right at a 500 units/s speed
                 if ((aabb.getCollisionFlags() & AABB.LEFT_BITS) == AABB.LEFT_BITS) {
+                    velocity.x = 0;
                     if(onLadder) {
                         velocity.y = -350f;
                     }
                     setCurrentAnimation("pushRight");
                 }
                 else {
+                    setVelocity(500f, velocity.y); //Sets the velocity to the right at a 500 units/s speed
                     this.setCurrentAnimation("moveRight");
                 }
             }

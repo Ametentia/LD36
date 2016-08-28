@@ -12,6 +12,8 @@ public class Sensor extends Tile {
         setRow(row);
         setColumn(col);
 
+        aabb.setSensor(true);
+
         playerColliding = false;
     }
 
