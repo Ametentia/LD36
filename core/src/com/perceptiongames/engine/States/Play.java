@@ -51,7 +51,7 @@ public class Play extends State {
         bg.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
 
         deathPoints = new ArrayList<Vector2>();
-        showDeathPoints = true;
+        showDeathPoints = false;
         restarted = false;
     }
 
@@ -71,10 +71,10 @@ public class Play extends State {
             camera.translate(0, 10);
         }
         else if(Gdx.input.isKeyPressed(Input.Keys.Q)) {
-            camera.zoom = Math.max(camera.zoom - 0.2f, 0);
+            camera.zoom = Math.max(camera.zoom - 0.02f, 0);
         }
         else if(Gdx.input.isKeyPressed(Input.Keys.E)) {
-            camera.zoom = Math.min(camera.zoom + 0.2f, 4f);
+            camera.zoom = Math.min(camera.zoom + 0.02f, 4f);
         }
         else if(Gdx.input.isKeyJustPressed(Input.Keys.R)) {
             restarted = false;
@@ -114,7 +114,9 @@ public class Play extends State {
 
                 if(player.getAABB().overlaps(current.getAABB())) {
                     player.getAnimation(player.getAnimationKey()).setPosition(player.getPosition());
-
+                for(Enemy e: enemies) {
+                    e.getAABB().overlaps(current.getAABB());
+                }
                     if(current instanceof StandardTile) { standardTileCollision((StandardTile) current); }
                     else if(current instanceof SpearBlock) { spearBlockCollision((SpearBlock) current); }
                     else if(current instanceof Sensor) { sensorCollision((Sensor) current); }
@@ -151,13 +153,15 @@ public class Play extends State {
             }
         }
 
-        for(Enemy e : enemies) { e.render(batch); }
+
 
         player.render(batch);
 
-        batch.end();
+
 
         debug.begin(ShapeRenderer.ShapeType.Line);
+        for(Enemy e : enemies) { e.render(batch); e.getAABB().debugRender(debug); }
+        batch.end();
         player.getAABB().debugRender(debug);
         for (int i = 0; i < terrain.length; i++) {
             for (int j = 0; j < terrain[0].length; j++) {
@@ -256,6 +260,7 @@ public class Play extends State {
         content.loadTexture("Background", "Background.png");
         content.loadTexture("Badlogic", "badlogic.jpg");
         content.loadTexture("Block", "testBlock.png");
+        content.loadTexture("Enemy", "SoldierMove.png");
 
         content.loadTexture("Ladder", "Terrain/Ladder.png");
         content.loadTexture("SpearBlock", "Terrain/SpearBlock.png");
@@ -299,6 +304,9 @@ public class Play extends State {
         player.addAnimation("attackLeft", playerAttackLeft);
 
         enemies = new ArrayList<Enemy>();
+        Animation a = new Animation(content.getTexture("Enemy"),1,6,0.5f);
+        Enemy bad = new Enemy(a,"Walk", new AABB(new Vector2(200,100),new Vector2(40,40)));
+        enemies.add(bad);
 
         generator =  new TerrainGenerator(content);
 

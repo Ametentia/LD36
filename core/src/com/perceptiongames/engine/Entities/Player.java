@@ -143,10 +143,10 @@ public class Player extends Entity {
             velocity.y = 0; //Set the y velocity to 0 if the player is on the ground
         }
 
+
         Vector2 newPos = new Vector2();
         newPos.x = getPosition().x + (velocity.x * dt); // Speed = distance / time, simple physics
         newPos.y = getPosition().y + (velocity.y * dt);
-
         if(newPos.x < 0) { //Because speed never hit 0, we make it 0 if its under 1
             newPos.x = 0;
             velocity.x = 0;
