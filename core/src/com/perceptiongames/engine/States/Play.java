@@ -62,7 +62,9 @@ public class Play extends State {
         hudCamera = new OrthographicCamera();
         hudCamera.setToOrtho(true);
         timeTaken = 0;
-        content.getMusic("new").play();
+        content.getMusic("new").setLooping(true);
+        content.getMusic("new").setVolume(0.1f);
+        //content.getMusic("new").play();
     }
     public void madeHud(ShapeRenderer sr)
     {
@@ -349,7 +351,6 @@ public class Play extends State {
         content.loadTexture("PlayerPush", "PlayerPush.png");
         content.loadTexture("PlayerAttackLeft", "PlayerAttackLeft.png");
         content.loadTexture("PlayerAttackRight", "PlayerAttackRight.png");
-        content.loadTexture("Background", "Background.png");
         content.loadTexture("Badlogic", "badlogic.jpg");
         content.loadTexture("Block", "testBlock.png");
         content.loadTexture("Enemy", "Soldier.png");
@@ -414,6 +415,7 @@ public class Play extends State {
         player.reset(generator.getStartPosition());
 
     }
+    public Player getPlayer() {return player;}
 
     public float getTime() { return timeTaken; }
 }

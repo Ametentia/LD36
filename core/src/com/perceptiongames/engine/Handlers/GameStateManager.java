@@ -1,10 +1,7 @@
 package com.perceptiongames.engine.Handlers;
 
 import com.perceptiongames.engine.Game;
-import com.perceptiongames.engine.States.EndLevel;
-import com.perceptiongames.engine.States.Pause;
-import com.perceptiongames.engine.States.Play;
-import com.perceptiongames.engine.States.State;
+import com.perceptiongames.engine.States.*;
 
 import java.util.Stack;
 
@@ -22,7 +19,7 @@ public class GameStateManager {
         this.game = game;
         states = new Stack<State>();
 
-        pushState(PLAY);
+        pushState(MENU);
     }
 
     private State getState(int state) {
@@ -33,6 +30,8 @@ public class GameStateManager {
                 return new Pause(this);
             case END_LEVEL:
                 return new EndLevel(this);
+            case MENU:
+                return new Menu(this);
             default:
                 throw new IllegalArgumentException();
         }

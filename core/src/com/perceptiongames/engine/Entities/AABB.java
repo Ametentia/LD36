@@ -81,6 +81,14 @@ public final class AABB {
         return true;
     }
 
+    public boolean contains(Vector2 pos)
+    {
+        if(this.centre.x+halfSize.x > pos.x && this.centre.x-this.halfSize.y < pos.x)
+            if(this.centre.y+this.getHeight()/2 > pos.y && this.centre.y-this.getHeight()/2 < pos.y)
+                return true;
+        return false;
+    }
+
 
     /**
      * This is called if two AABBs overlap <br>
