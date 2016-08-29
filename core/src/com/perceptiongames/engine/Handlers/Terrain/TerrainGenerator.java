@@ -1,12 +1,10 @@
 package com.perceptiongames.engine.Handlers.Terrain;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 import com.perceptiongames.engine.Entities.AABB;
 import com.perceptiongames.engine.Entities.Enemy;
-import com.perceptiongames.engine.Entities.Entity;
 import com.perceptiongames.engine.Handlers.Animation;
 import com.perceptiongames.engine.Handlers.Content;
 
@@ -49,6 +47,11 @@ public class TerrainGenerator {
     private List<Enemy> enemies;
 
     private Vector2 startPosition;
+
+    private boolean startRoom;
+
+    private int startRoomX;
+    private int startRoomY;
     private int endRoomX;
     private int endRoomY;
 
@@ -81,7 +84,9 @@ public class TerrainGenerator {
      * Creates a new pseudo-generated world
      */
     public void generate() {
+
         enemies.clear();
+
         for (int i = 0; i < (GRID_SIZE * ROOM_WIDTH); i++) {
             for (int j = 0; j < (GRID_SIZE * ROOM_HEIGHT); j++) {
                 terrain[i][j] = null;
@@ -97,10 +102,13 @@ public class TerrainGenerator {
 
         left = down = false;
         int x = random.nextInt(GRID_SIZE), y = 0;
+
         startPosition = new Vector2();
         startPosition.y = 4 * Tile.SIZE;
         startPosition.x = ((x + 1) * ROOM_WIDTH * Tile.SIZE) + 5 * Tile.SIZE;
 
+
+        startRoom = true;
         while(true) {
             down = false;
             getDir();
@@ -122,6 +130,11 @@ public class TerrainGenerator {
             }
 
             if(down) {
+                if(startRoom) {
+                    startRoomX = x;
+                    startRoomY = y;
+                    startRoom = false;
+                }
                 rooms[x][y] = RoomType.Down;
                 y++;
                 left = !left;
@@ -134,9 +147,19 @@ public class TerrainGenerator {
             }
 
             if(!down) {
+                if(startRoom) {
+                    startRoomX = x;
+                    startRoomY = y;
+                    startRoom = false;
+                }
                 rooms[x][y] = RoomType.Standard;
             }
             else {
+                if(startRoom) {
+                    startRoomX = x;
+                    startRoomY = y;
+                    startRoom = false;
+                }
                 rooms[x][y] = RoomType.getEnum(random.nextInt(1) + 3);
             }
         }
@@ -200,7 +223,7 @@ public class TerrainGenerator {
                         texture = 3;
                         break;
                     case '9':
-                        if (random.nextBoolean() )
+                        if (random.nextBoolean())
                             texture = random.nextInt(3);
                         else
                             texture = -1;
@@ -254,6 +277,14 @@ public class TerrainGenerator {
                         else {
                             texture = -1;
                         }
+                        break;
+                    case 'V':
+                        if(xStart == startRoomX && yStart == startRoomY) {
+                            startPosition.x = xOffset + (Tile.SIZE * col) - 40;
+                            startPosition.y = yOffset + (Tile.SIZE * row) - 40;
+                        }
+                        texture = -1;
+                        break;
                 }
 
                 if (texture > -1) {
@@ -281,15 +312,27 @@ public class TerrainGenerator {
     }
 
     private void generateEnemy(Vector2 pos) {
-        Animation a = new Animation(content.getTexture("Enemy"),1,1, 10f);
+
+        int enemyType = random.nextInt(3);
+
+        Animation a = new Animation(content.getTexture("Enemy" + enemyType), 1, 1, 10f);
         Enemy bad = new Enemy(a,"idle", new AABB(new Vector2(pos.x + 31, pos.y + 31),new Vector2(31,31)));
-        bad.addAnimation("attack",new Animation(content.getTexture("EnemyAttack"),1,7, 0.08f));
-        a =new Animation(content.getTexture("EnemyMove"),1,6,0.5f);
+        if(enemyType == 2) {
+            bad.addAnimation("attack", new Animation(content.getTexture("EnemyAttack" + enemyType), 1, 6, 0.08f));
+        }
+        else {
+            bad.addAnimation("attack", new Animation(content.getTexture("EnemyAttack" + enemyType), 1, 7, 0.08f));
+        }
+
+        a = new Animation(content.getTexture("EnemyMove" + enemyType), 1, 6, 0.5f);
         bad.addAnimation("Right",a);
-        a =new Animation(content.getTexture("EnemyMove"),1,6,0.5f);
+
+        a = new Animation(content.getTexture("EnemyMove" + enemyType), 1, 6, 0.5f);
         a.setFlipX(true);
+
         bad.addAnimation("Left",a);
         bad.setWeapon(new AABB(100, 100, 7f, 7f));
+
         enemies.add(bad);
     }
 

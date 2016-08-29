@@ -3,6 +3,7 @@ package com.perceptiongames.engine.States;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.viewport.Viewport;
 import com.perceptiongames.engine.Game;
 import com.perceptiongames.engine.Handlers.Content;
 import com.perceptiongames.engine.Handlers.GameStateManager;
@@ -16,6 +17,7 @@ public abstract class State {
     protected Content content;
 
     protected OrthographicCamera camera;
+    protected Viewport viewport;
 
     protected final Vector3 mouse;
 
@@ -25,6 +27,8 @@ public abstract class State {
 
         batch = game.getSpriteBatch();
         camera = game.getCamera();
+
+        viewport = game.getViewport();
 
         content = game.getContent();
 
