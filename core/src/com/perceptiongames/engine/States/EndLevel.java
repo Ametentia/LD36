@@ -3,9 +3,11 @@ package com.perceptiongames.engine.States;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.perceptiongames.engine.Entities.Player;
+import com.perceptiongames.engine.Game;
 import com.perceptiongames.engine.Handlers.GameStateManager;
 
 public class EndLevel extends State {
@@ -26,7 +28,6 @@ public class EndLevel extends State {
         font = content.getFont("Ubuntu");
         camera.zoom = 1;
         camera.rotate(0);
-        camera.lookAt(100,100,0);
         bg = content.getTexture("Background");
         bg.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
 
@@ -57,6 +58,11 @@ public class EndLevel extends State {
 
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
+
+        batch.draw(bg, -320, -180,
+                Game.WORLD_WIDTH + 640, Game.WORLD_HEIGHT + 360, 0, 0,
+                Game.WORLD_WIDTH / bg.getWidth(), Game.WORLD_HEIGHT / bg.getHeight());
+
         mouse.set(100, 100, 0);
         camera.unproject(mouse);
         font.draw(batch, "Level Completed!", mouse.x, mouse.y);
@@ -66,9 +72,6 @@ public class EndLevel extends State {
         font.draw(batch, "Deaths: -50pts x " + player.getNumberDeaths(), mouse.x, mouse.y + 90);
 
         font.draw(batch, "Total Points: " + totalPoints, mouse.x, mouse.y + 150);
-        batch.draw(bg, -320, -180,
-                Game.WORLD_WIDTH + 640, Game.WORLD_HEIGHT + 360, 0, 0,
-                Game.WORLD_WIDTH / bg.getWidth(), Game.WORLD_HEIGHT / bg.getHeight());
         batch.end();
     }
 
