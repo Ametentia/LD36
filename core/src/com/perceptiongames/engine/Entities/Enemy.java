@@ -35,10 +35,11 @@ public class Enemy extends Entity {
 
     @Override
     public void update(float dt) {
+        if(!live) return;
 
-        if(ticker > 6) {
+        if(ticker > 3) {
             ticker = 0;
-            current = random.nextInt(4)+1;
+            current = random.nextInt(4) + 1;
         }
 
 
@@ -75,25 +76,27 @@ public class Enemy extends Entity {
         if(!onGround) {
             velocity.y = Math.min(velocity.y + 2300f*dt, 2500f);
         }
-        else
-        {
+        else {
             velocity.y=0;
         }
+
         flags = aabb.getCollisionFlags();
         switch(current) {
             case 1:
-                velocity.x=75;
+                velocity.x = 75;
                 this.setCurrentAnimation("Right");
-                if((flags&AABB.RIGHT_BITS) == AABB.RIGHT_BITS) {
-                    velocity.add(0, -400);
+                if((flags&AABB.LEFT_BITS) == AABB.LEFT_BITS) {
+                    //velocity.add(0, -400);
+                    current = 2;
                 }
                 attacking = false;
                 break;
             case 2:
                 velocity.x=-75;
                 this.setCurrentAnimation("Left");
-                if((flags&AABB.LEFT_BITS) == AABB.LEFT_BITS) {
-                    velocity.add(0,-400);
+                if((flags & AABB.RIGHT_BITS) == AABB.RIGHT_BITS) {
+                    //velocity.add(0, 400);
+                    current = 1;
                 }
                 attacking = false;
                 break;
@@ -114,32 +117,32 @@ public class Enemy extends Entity {
             Animation a = getAnimation(getAnimationKey());
             switch (a.getCurrentFrame()) {
                 case 0:
-                    weaponOffset.x = 29;
-                    weaponOffset.y = -13;
+                    weaponOffset.x = 38;
+                    weaponOffset.y = -5;
                     break;
                 case 1:
-                    weaponOffset.x = 30;
-                    weaponOffset.y = 4;
-                    break;
-                case 2:
-                    weaponOffset.x = 15;
+                    weaponOffset.x = 38;
                     weaponOffset.y = 14;
                     break;
+                case 2:
+                    weaponOffset.x = 22;
+                    weaponOffset.y = 20;
+                    break;
                 case 3:
-                    weaponOffset.x = -13;
-                    weaponOffset.y = 22;
+                    weaponOffset.x = -7;
+                    weaponOffset.y = 28;
                     break;
                 case 4:
-                    weaponOffset.x = -24;
-                    weaponOffset.y = 12;
+                    weaponOffset.x = -20;
+                    weaponOffset.y = 18;
                     break;
                 case 5:
-                    weaponOffset.x = -31;
-                    weaponOffset.y = -12;
+                    weaponOffset.x = -23;
+                    weaponOffset.y = -8;
                     break;
                 case 6:
-                    weaponOffset.x = 16;
-                    weaponOffset.y = -24;
+                    weaponOffset.x = 20;
+                    weaponOffset.y = -18;
                     break;
             }
         }
@@ -180,6 +183,8 @@ public class Enemy extends Entity {
     public AABB getWeapon() { return weapon; }
     public boolean isAttacking() { return attacking; }
 
+
+    public void setCurrent(int current) { this.current = current; }
     public void setWeapon(AABB weapon) {
         this.weapon = weapon;
         this.weapon.setSensor(true);

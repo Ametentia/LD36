@@ -7,6 +7,8 @@ public class Sensor extends Tile {
 
     private boolean playerColliding;
 
+    private String data;
+
     public Sensor(int row, int col, AABB aabb) {
         super(aabb);
         setRow(row);
@@ -18,6 +20,8 @@ public class Sensor extends Tile {
     }
 
     public boolean isPlayerColliding() { return playerColliding; }
+    public String getData() { return data; }
 
     public void setPlayerColliding(boolean b) { playerColliding = b; }
+    public void setData(String s) { data = s; }
 }

@@ -37,6 +37,8 @@ public class Play extends State {
     private boolean showDeathPoints;
     private boolean restarted;
 
+    private float timeTaken;
+
     public Play(GameStateManager gsm) {
         super(gsm);
 
@@ -54,6 +56,8 @@ public class Play extends State {
         deathPoints = new ArrayList<Vector2>();
         showDeathPoints = false;
         restarted = false;
+
+        timeTaken = 0;
     }
 
     @Override
@@ -118,20 +122,24 @@ public class Play extends State {
 
                     if(current instanceof StandardTile) { standardTileCollision((StandardTile) current); }
                     else if(current instanceof SpearBlock) { spearBlockCollision((SpearBlock) current); }
-                    else if(current instanceof Sensor) { sensorCollision((Sensor) current); }
+                    else if(current instanceof Sensor) { sensorCollision((Sensor) current, -1); }
                     else if(current instanceof FallingBlock) { fallingBlockCollision((FallingBlock) current); }
                 }
                 if(player.getWeapon().overlaps(current.getAABB()) && player.isAttacking() && !current.getAABB().isSensor()) {
                     System.out.println("Stabbing: [" + current.getRow() + ":" + current.getColumn() + "]");
                 }
 
-                for(Enemy e: enemies) {
-                    e.getAABB().overlaps(current.getAABB());
-                    if(e.isAttacking() && e.getWeapon().overlaps(player.getAABB())) {
-                        System.out.println("Enemy Stabbing Player");
+                for(int e = 0; e < enemies.size(); e++) {
+
+                    if(enemies.get(e).getAABB().overlaps(current.getAABB())) {
+                        if(current instanceof Sensor) { sensorCollision((Sensor) current, e); }
                     }
-                    if(player.getWeapon().overlaps(e.getAABB()) && player.isAttacking()) {
-                        System.out.println("Stabbing Enemy");
+
+                    if(enemies.get(e).isAttacking() && enemies.get(e).getWeapon().overlaps(player.getAABB())) {
+                        player.hit();
+                    }
+                    if(player.getWeapon().overlaps(enemies.get(e).getAABB()) && player.isAttacking()) {
+                        enemies.get(e).hit();
                     }
                 }
             }
@@ -145,6 +153,8 @@ public class Play extends State {
         }
 
         camera.update();
+
+        timeTaken += dt;
     }
 
     @Override
@@ -182,7 +192,8 @@ public class Play extends State {
         }
         mouse.set(100, 150, 0);
         camera.unproject(mouse);
-        debugFont.draw(batch, "Current: " + enemies.get(0).getCurrent(), mouse.x, mouse.y);
+        if(enemies.size() > 0)
+            debugFont.draw(batch, "Current: " + enemies.get(0).getCurrent(), mouse.x, mouse.y);
         batch.end();
         player.getAABB().debugRender(debug);
         debug.setColor(Color.BLUE);
@@ -231,26 +242,36 @@ public class Play extends State {
         }
     }
 
-    private void sensorCollision(Sensor tile) {
-        int row = tile.getRow();
-        int col = tile.getColumn();
+    private void sensorCollision(Sensor tile, int index) {
+        if(tile.getData().contains("Enemy") && index >= 0) {
+            if(tile.getData().equals("EnemyLeft")) {
+                enemies.get(index).setCurrent(2);
+            }
+            else if(tile.getData().equals("EnemyRight")) {
+                enemies.get(index).setCurrent(1);
+            }
+        }
+        else if(!tile.getData().contains("Enemy")) {
+            int row = tile.getRow();
+            int col = tile.getColumn();
 
-        Tile[] s = new Tile[] { null, null, null, null, null, null, null, null };
+            Tile[] s = new Tile[]{null, null, null, null, null, null, null, null};
 
-        int xMax = TerrainGenerator.ROOM_WIDTH * TerrainGenerator.GRID_SIZE;
-        int yMax = TerrainGenerator.ROOM_HEIGHT * TerrainGenerator.GRID_SIZE;
+            int xMax = TerrainGenerator.ROOM_WIDTH * TerrainGenerator.GRID_SIZE;
+            int yMax = TerrainGenerator.ROOM_HEIGHT * TerrainGenerator.GRID_SIZE;
 
 
-        if(row + 1 < yMax && col + 1 < xMax) { s[0] = terrain[col + 1][row + 1]; }
-        if(row - 1 > 0 && col - 1 > 0) { s[1] = terrain[col - 1][row - 1]; }
-        if(row + 1 < yMax) { s[2] = terrain[col][row + 1]; }
-        if(row - 1 > 0) { s[3] = terrain[col][row - 1]; }
-        if(col + 1 < xMax && row - 1 > 0) { s[4] = terrain[col + 1][row - 1]; }
-        if(col - 1 > 0) { s[5] = terrain[col - 1][row]; }
-        if(col + 1 < xMax) { s[6] = terrain[col + 1][row]; }
-        if(col - 1 > 0 && row + 1 < yMax) { s[7] = terrain[col - 1][row + 1]; }
+            if (row + 1 < yMax && col + 1 < xMax) { s[0] = terrain[col + 1][row + 1]; }
+            if (row - 1 > 0 && col - 1 > 0) { s[1] = terrain[col - 1][row - 1]; }
+            if (row + 1 < yMax) { s[2] = terrain[col][row + 1]; }
+            if (row - 1 > 0) { s[3] = terrain[col][row - 1]; }
+            if (col + 1 < xMax && row - 1 > 0) { s[4] = terrain[col + 1][row - 1]; }
+            if (col - 1 > 0) { s[5] = terrain[col - 1][row]; }
+            if (col + 1 < xMax) { s[6] = terrain[col + 1][row]; }
+            if (col - 1 > 0 && row + 1 < yMax) { s[7] = terrain[col - 1][row + 1]; }
 
-        for(Tile t : s) { if(t != null) t.setActive(true); }
+            for (Tile t : s) { if (t != null) t.setActive(true); }
+        }
     }
 
     private void fallingBlockCollision(FallingBlock tile) {
@@ -265,16 +286,42 @@ public class Play extends State {
     }
 
     private void standardTileCollision(StandardTile tile) {
-        if(tile.getDamage() > 0) { player.hit(); }
-        else if(tile.isLadder()) { player.isOnLadder(); }
 
         if (!player.isLive() && !restarted) {
             deathPoints.add(new Vector2(player.getAABB().getCentre()));
             player.incrementDeaths();
             restarted = true;
+            player.reset(generator.getStartPosition());
+        }
+
+        if(tile.getDamage() > 0) { player.hit(); }
+        else if(tile.isLadder()) { player.isOnLadder(); }
+        else if(tile.getDamage() == -4) {
+            player.setLive(false);
+            restarted = false;
+            gsm.pushState(GameStateManager.END_LEVEL);
         }
     }
 
+
+    public void reset() {
+        generator.generate();
+        player.reset(generator.getStartPosition());
+        camera.position.set(
+                Math.max(Math.min(player.getAABB().getPosition().x + 16, Game.WORLD_WIDTH - 320), 320),
+                Math.max(Math.min(player.getAABB().getPosition().y + 32, Game.WORLD_HEIGHT - 180), 180),
+                0);
+
+        enemies.clear();
+        enemies.addAll(generator.getEnemies());
+
+        deathPoints.clear();
+
+        timeTaken = 0;
+
+        terrain = generator.getTerrain();
+        levelNumber++;
+    }
 
     private void loadContent() {
         content.loadTexture("PlayerIdle", "PlayerIdle.png");
@@ -291,6 +338,7 @@ public class Play extends State {
 
 
         content.loadTexture("Ladder", "Terrain/Ladder.png");
+        content.loadTexture("EndDoor", "Terrain/EndDoor.png");
         content.loadTexture("SpearBlock", "Terrain/SpearBlock.png");
         content.loadTexture("Wall", "Terrain/Wall.png");
         content.loadTexture("BrokenWall", "Terrain/BrokenWall1.png");
@@ -306,6 +354,9 @@ public class Play extends State {
     }
 
     private void generateEntities() {
+
+        generator =  new TerrainGenerator(content);
+
         Animation playerStill = new Animation(content.getTexture("PlayerIdle"), 1, 24, 0.2f);
 
         Animation playerLeft = new Animation(content.getTexture("PlayerMove"), 1, 5, 0.1f);
@@ -334,20 +385,21 @@ public class Play extends State {
         player.setWeapon(new AABB(player.getAABB().getCentre().x, player.getAABB().getCentre().y + 4, 6, 3));
 
         enemies = new ArrayList<Enemy>();
-        Animation a = new Animation(content.getTexture("Enemy"),1,1,10f);
+        enemies.addAll(generator.getEnemies());
+       /* Animation a = new Animation(content.getTexture("Enemy"),1,1, 10f);
 
         Enemy bad = new Enemy(a,"idle", new AABB(new Vector2(200,100),new Vector2(31,31)));
-        bad.addAnimation("attack",new Animation(content.getTexture("EnemyAttack"),1,7, 0.8f));
+        bad.addAnimation("attack",new Animation(content.getTexture("EnemyAttack"),1,7, 0.08f));
         a =new Animation(content.getTexture("EnemyMove"),1,6,0.5f);
         bad.addAnimation("Right",a);
         a =new Animation(content.getTexture("EnemyMove"),1,6,0.5f);
         a.setFlipX(true);
         bad.addAnimation("Left",a);
         bad.setWeapon(new AABB(100, 100, 7f, 7f));
-        enemies.add(bad);
-
-        generator =  new TerrainGenerator(content);
+        enemies.add(bad);*/
 
         terrain = generator.getTerrain();
     }
+
+    public float getTime() { return timeTaken; }
 }

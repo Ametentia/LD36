@@ -5,6 +5,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Vector2;
 import com.perceptiongames.engine.Entities.AABB;
+import com.perceptiongames.engine.Entities.Enemy;
 import com.perceptiongames.engine.Entities.Entity;
 import com.perceptiongames.engine.Handlers.Animation;
 import com.perceptiongames.engine.Handlers.Content;
@@ -45,11 +46,17 @@ public class TerrainGenerator {
     private Tile[][] terrain;
     private Texture[] textures;
 
+    private List<Enemy> enemies;
+
     private Vector2 startPosition;
+    private int endRoomX;
+    private int endRoomY;
 
     private static final Random random = new Random();
 
     private boolean left, down;
+
+    private Content content;
 
     public TerrainGenerator(Content content) {
         textures = new Texture[7];
@@ -60,8 +67,11 @@ public class TerrainGenerator {
         textures[4] = content.getTexture("SpearBlock");
         textures[5] = content.getTexture("Ladder");
 
+        this.content = content;
 
         terrain = new Tile[GRID_SIZE * ROOM_WIDTH][GRID_SIZE * ROOM_HEIGHT];
+
+        enemies = new ArrayList<Enemy>();
 
         generate();
     }
@@ -117,6 +127,8 @@ public class TerrainGenerator {
                 left = !left;
                 if(y >= GRID_SIZE) {
                     rooms[x][y - 1] = RoomType.Standard;
+                    endRoomX = x;
+                    endRoomY = y - 1;
                     break;
                 }
             }
@@ -162,7 +174,11 @@ public class TerrainGenerator {
         int room;
         if (type == RoomType.None) {
             room = 0;
-        } else {
+        }
+        else if(type == RoomType.Cross) {
+            room = 4;
+        }
+        else {
             room = random.nextInt(5);
         }
 
@@ -193,9 +209,23 @@ public class TerrainGenerator {
                         terrain[xIndex + col][yIndex + row] = new FallingBlock(textures[random.nextInt(3)],
                                 new AABB(xOffset + (Tile.SIZE * col), yOffset + (Tile.SIZE * row), halfSize, halfSize));
                         break;
-                    case '3':
+                    case 'P':
                         terrain[xIndex + col][yIndex + row] = new Sensor(yIndex + row, xIndex + col,
                                 new AABB(xOffset + (Tile.SIZE * col), yOffset + (Tile.SIZE * row), halfSize, halfSize));
+
+                        ((Sensor)terrain[xIndex + col][yIndex + row]).setData("Player");
+                        break;
+                    case 'E':
+                        terrain[xIndex + col][yIndex + row] = new Sensor(yIndex + row, xIndex + col,
+                                new AABB(xOffset + (Tile.SIZE * col), yOffset + (Tile.SIZE * row), halfSize, halfSize));
+
+                        ((Sensor)terrain[xIndex + col][yIndex + row]).setData("EnemyLeft");
+                        break;
+                    case 'R':
+                        terrain[xIndex + col][yIndex + row] = new Sensor(yIndex + row, xIndex + col,
+                                new AABB(xOffset + (Tile.SIZE * col), yOffset + (Tile.SIZE * row), halfSize, halfSize));
+
+                        ((Sensor)terrain[xIndex + col][yIndex + row]).setData("EnemyRight");
                         break;
                     case '6':
                         terrain[xIndex + col][yIndex + row] = new SpearBlock(new Animation(textures[4], 1, 50, 0.028f),
@@ -209,6 +239,21 @@ public class TerrainGenerator {
                     case 'L':
                         texture = 5;
                         break;
+                    case 'S':
+                        generateEnemy(new Vector2(xOffset + (Tile.SIZE * col), yOffset + (Tile.SIZE * row)));
+                        break;
+                    case 'T':
+                        if(xStart == endRoomX && yStart == endRoomY) {
+                            terrain[xIndex + col][yIndex + row] = new StandardTile(content.getTexture("EndDoor"),
+                                    new AABB(xOffset + (Tile.SIZE * col), yOffset + (Tile.SIZE * row), halfSize, halfSize),
+                                    false);
+
+                            terrain[xIndex + col][yIndex + row].getAABB().setSensor(true);
+                            terrain[xIndex + col][yIndex + row].setDamage(-4);
+                        }
+                        else {
+                            texture = -1;
+                        }
                 }
 
                 if (texture > -1) {
@@ -235,8 +280,22 @@ public class TerrainGenerator {
         }
     }
 
+    private void generateEnemy(Vector2 pos) {
+        Animation a = new Animation(content.getTexture("Enemy"),1,1, 10f);
+        Enemy bad = new Enemy(a,"idle", new AABB(new Vector2(pos.x + 31, pos.y + 31),new Vector2(31,31)));
+        bad.addAnimation("attack",new Animation(content.getTexture("EnemyAttack"),1,7, 0.08f));
+        a =new Animation(content.getTexture("EnemyMove"),1,6,0.5f);
+        bad.addAnimation("Right",a);
+        a =new Animation(content.getTexture("EnemyMove"),1,6,0.5f);
+        a.setFlipX(true);
+        bad.addAnimation("Left",a);
+        bad.setWeapon(new AABB(100, 100, 7f, 7f));
+        enemies.add(bad);
+    }
+
     public Tile[][] getTerrain() {
         return terrain;
     }
     public Vector2 getStartPosition() { return startPosition; }
+    public List<Enemy> getEnemies() { return enemies; }
 }

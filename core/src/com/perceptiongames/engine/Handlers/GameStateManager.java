@@ -1,6 +1,7 @@
 package com.perceptiongames.engine.Handlers;
 
 import com.perceptiongames.engine.Game;
+import com.perceptiongames.engine.States.EndLevel;
 import com.perceptiongames.engine.States.Pause;
 import com.perceptiongames.engine.States.Play;
 import com.perceptiongames.engine.States.State;
@@ -15,6 +16,7 @@ public class GameStateManager {
     public static final int MENU = 0;
     public static final int PLAY = 1;
     public static final int PAUSE = 2;
+    public static final int END_LEVEL = 3;
 
     public GameStateManager(Game game) {
         this.game = game;
@@ -29,8 +31,8 @@ public class GameStateManager {
                 return new Play(this);
             case PAUSE:
                 return new Pause(this);
-            case MENU:
-                // TODO
+            case END_LEVEL:
+                return new EndLevel(this);
             default:
                 throw new IllegalArgumentException();
         }
@@ -51,6 +53,8 @@ public class GameStateManager {
             s.dispose();
         }
     }
+
+    public State get(int index) { return  states.elementAt(index); }
 
     public void update(float dt) { states.peek().update(dt); }
     public void render() { states.peek().render(); }
