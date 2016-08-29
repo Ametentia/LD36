@@ -39,6 +39,9 @@ public class Play extends State {
 
     private float timeTaken;
 
+    private float cameraXOffset;
+    private float cameraYOffset;
+
     public Play(GameStateManager gsm) {
         super(gsm);
 
@@ -62,18 +65,26 @@ public class Play extends State {
 
     @Override
     public void update(float dt) {
-
+        boolean movingCamera=false;
         if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            camera.translate(-10, 0);
+            movingCamera=true;
+            if(cameraXOffset-player.getAABB().getHeight()>-Game.WIDTH/4)
+                cameraXOffset-=8;
         }
         else if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            camera.translate(10, 0);
+            movingCamera=true;
+            if(cameraXOffset+player.getAABB().getWidth()<Game.WIDTH/4)
+                cameraXOffset+=8;
         }
         else if(Gdx.input.isKeyPressed(Input.Keys.UP)) {
-            camera.translate(0, -10);
+            movingCamera=true;
+            if(cameraYOffset-player.getAABB().getHeight()/2>-Game.HEIGHT/4)
+                cameraYOffset-=8;
         }
         else if(Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-            camera.translate(0, 10);
+            movingCamera=true;
+            if(cameraYOffset+player.getAABB().getHeight()/2<Game.HEIGHT/4)
+                cameraYOffset+=8;
         }
         else if(Gdx.input.isKeyPressed(Input.Keys.Q)) {
             camera.zoom = Math.max(camera.zoom - 0.02f, 0);
@@ -90,6 +101,21 @@ public class Play extends State {
         }
         else if(Gdx.input.isKeyJustPressed(Input.Keys.V)) {
             terrain[3][0].setActive(true);
+        }
+        if(!movingCamera)
+        {
+            if(Math.abs(cameraXOffset)>10)
+                cameraXOffset-= (cameraXOffset/Math.abs(cameraXOffset))*3f;
+            if(Math.abs(cameraYOffset)>10)
+                cameraYOffset-=(cameraYOffset/Math.abs(cameraYOffset))*3f;
+            if(Math.abs(cameraXOffset)<10)
+            {
+                cameraXOffset=0;
+            }
+            if(Math.abs(cameraYOffset)<10)
+            {
+                cameraYOffset=0;
+            }
         }
 
         player.update(dt);
@@ -147,10 +173,11 @@ public class Play extends State {
 
         if(player.isLive()) {
             camera.position.set(
-                    Math.max(Math.min(player.getAABB().getPosition().x + 16, Game.WORLD_WIDTH - 320), 320),
-                    Math.max(Math.min(player.getAABB().getPosition().y + 32, Game.WORLD_HEIGHT - 180), 180),
+                    Math.max(Math.min(player.getAABB().getPosition().x + 16+cameraXOffset, Game.WORLD_WIDTH - 320), 320),
+                    Math.max(Math.min(player.getAABB().getPosition().y + 32+cameraYOffset, Game.WORLD_HEIGHT - 180), 180),
                     0);
         }
+
 
         camera.update();
 

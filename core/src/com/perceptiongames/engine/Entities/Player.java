@@ -18,6 +18,7 @@ public class Player extends Entity {
     private int health = 1;
     private int numberDeaths = 0;
 
+
     private boolean attacking;
 
     /**
