@@ -58,7 +58,6 @@ public class Play extends State {
 
         deathPoints = new ArrayList<Vector2>();
         showDeathPoints = false;
-        restarted = false;
         hudCamera = new OrthographicCamera();
         hudCamera.setToOrtho(true);
         timeTaken = 0;

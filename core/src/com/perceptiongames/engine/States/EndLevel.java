@@ -32,7 +32,7 @@ public class EndLevel extends State {
         bg = content.getTexture("Background");
         bg.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
 
-        play = (Play) gsm.get(0);
+        play = (Play) gsm.get(1);
         player = play.getPlayer();
 
         totalPoints = 500f / (float) Math.floor(play.getTime());
