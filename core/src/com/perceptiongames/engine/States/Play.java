@@ -81,6 +81,7 @@ public class Play extends State {
         Gdx.gl.glDisable(GL20.GL_BLEND);
         batch.begin();
         debugFont.draw(batch, "Time: "+Math.round(timeTaken),mouse.x+20,mouse.y+15);
+        debugFont.draw(batch, "Death Count: "+player.getNumberDeaths(),mouse.x+20,mouse.y+30);
         batch.end();
         sr.setProjectionMatrix(camera.combined);
         batch.setProjectionMatrix(camera.combined);
@@ -234,46 +235,13 @@ public class Play extends State {
 
         debugFont.draw(batch, "Attacking: " + player.isAttacking(), mouse.x, mouse.y);
 
-        debug.begin(ShapeRenderer.ShapeType.Line);
         for(Enemy e : enemies) {
             e.render(batch);
-            e.getAABB().debugRender(debug);
-            e.getWeapon().debugRender(debug);
         }
         mouse.set(100, 150, 0);
         camera.unproject(mouse);
-        if(enemies.size() > 0)
-            debugFont.draw(batch, "Current: " + enemies.get(0).getCurrent(), mouse.x, mouse.y);
         batch.end();
-        player.getAABB().debugRender(debug);
-        debug.setColor(Color.BLUE);
-        player.getWeapon().debugRender(debug);
-        debug.setColor(Color.RED);
-        for (int i = 0; i < terrain.length; i++) {
-            for (int j = 0; j < terrain[0].length; j++) {
-                if(terrain[i][j] == null) continue;
-                if(terrain[i][j] instanceof SpearBlock) {
-                    terrain[i][j].getAABB().debugRender(debug);
-                    debug.circle(((SpearBlock)terrain[i][j]).getAnimation().getPosition().x,
-                            ((SpearBlock)terrain[i][j]).getAnimation().getPosition().y, 5);
-                }
-                else if(terrain[i][j] instanceof Sensor) {
-                    terrain[i][j].getAABB().debugRender(debug);
-                }
-                else if(terrain[i][j] instanceof FallingBlock && terrain[i][j].isActive()) {
-                    terrain[i][j].getAABB().debugRender(debug);
-                }
-            }
-        }
-        debug.end();
 
-        if(showDeathPoints) {
-            debug.begin(ShapeRenderer.ShapeType.Filled);
-            for(Vector2 p : deathPoints) {
-                debug.circle(p.x, p.y, 5f);
-            }
-            debug.end();
-        }
         madeHud(debug);
 
     }
