@@ -96,25 +96,28 @@ public class Play extends State {
     }
     @Override
     public void update(float dt) {
-
-        boolean movingCamera = false;
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            movingCamera = true;
-            if (cameraXOffset - player.getAABB().getHeight() > -Game.WIDTH / 4)
-                cameraXOffset -= 8;
-        } else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            movingCamera = true;
-            if (cameraXOffset + player.getAABB().getWidth() < Game.WIDTH / 4)
-                cameraXOffset += 8;
-        } else if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-            movingCamera = true;
-            if (cameraYOffset - player.getAABB().getHeight() / 2 > -Game.HEIGHT / 4)
-                cameraYOffset -= 8;
-        } else if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-            movingCamera = true;
-            if (cameraYOffset + player.getAABB().getHeight() / 2 < Game.HEIGHT / 4)
-                cameraYOffset += 8;
-        } else if (Gdx.input.isKeyPressed(Input.Keys.Q)) {
+        boolean movingCamera=false;
+        if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+            movingCamera=true;
+            if(cameraXOffset-player.getAABB().getHeight()>-Game.WIDTH/2)
+                cameraXOffset-=8;
+        }
+        else if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+            movingCamera=true;
+            if(cameraXOffset+player.getAABB().getWidth()<Game.WIDTH/2)
+                cameraXOffset+=8;
+        }
+        else if(Gdx.input.isKeyPressed(Input.Keys.UP)) {
+            movingCamera=true;
+            if(cameraYOffset-player.getAABB().getHeight()/2>-Game.HEIGHT/2)
+                cameraYOffset-=8;
+        }
+        else if(Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+            movingCamera=true;
+            if(cameraYOffset+player.getAABB().getHeight()/2<Game.HEIGHT/2)
+                cameraYOffset+=8;
+        }
+        else if(Gdx.input.isKeyPressed(Input.Keys.Q)) {
             camera.zoom = Math.max(camera.zoom - 0.02f, 0);
         } else if (Gdx.input.isKeyPressed(Input.Keys.E)) {
             camera.zoom = Math.min(camera.zoom + 0.02f, 4f);
