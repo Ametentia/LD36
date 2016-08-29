@@ -81,7 +81,7 @@ public class TerrainGenerator {
      * Creates a new pseudo-generated world
      */
     public void generate() {
-
+        enemies.clear();
         for (int i = 0; i < (GRID_SIZE * ROOM_WIDTH); i++) {
             for (int j = 0; j < (GRID_SIZE * ROOM_HEIGHT); j++) {
                 terrain[i][j] = null;

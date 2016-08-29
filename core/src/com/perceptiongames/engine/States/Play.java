@@ -2,8 +2,7 @@ package com.perceptiongames.engine.States;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
@@ -41,6 +40,7 @@ public class Play extends State {
 
     private float cameraXOffset;
     private float cameraYOffset;
+    private OrthographicCamera hudCamera;
 
     public Play(GameStateManager gsm) {
         super(gsm);
@@ -59,10 +59,32 @@ public class Play extends State {
         deathPoints = new ArrayList<Vector2>();
         showDeathPoints = false;
         restarted = false;
-
+        hudCamera = new OrthographicCamera();
+        hudCamera.setToOrtho(true);
         timeTaken = 0;
     }
-
+    public void madeHud(ShapeRenderer sr)
+    {
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+        sr.setProjectionMatrix(hudCamera.combined);
+        batch.setProjectionMatrix(hudCamera.combined);
+        sr.begin(ShapeRenderer.ShapeType.Filled);
+        debugFont.setColor(0,0,0,1);
+        mouse.set(0,0,0);
+        hudCamera.unproject(mouse);
+        Color a = new Color(253f/255,0,0,0.6f);
+        Color b = new Color(253f/255,0,0,0.75f);
+        sr.rect(mouse.x,mouse.y,200,50,a,a,a,a);
+        sr.triangle(mouse.x+200,mouse.y,mouse.x+200,mouse.y+50,mouse.x+300,mouse.y,a,a,b);
+        sr.end();
+        Gdx.gl.glDisable(GL20.GL_BLEND);
+        batch.begin();
+        debugFont.draw(batch, "Time: "+Math.round(timeTaken),mouse.x+20,mouse.y+15);
+        batch.end();
+        sr.setProjectionMatrix(camera.combined);
+        batch.setProjectionMatrix(camera.combined);
+    }
     @Override
     public void update(float dt) {
         boolean movingCamera=false;
@@ -180,6 +202,7 @@ public class Play extends State {
 
 
         camera.update();
+        hudCamera.update();
 
         timeTaken += dt;
     }
@@ -251,6 +274,7 @@ public class Play extends State {
             }
             debug.end();
         }
+        madeHud(debug);
 
     }
 
@@ -408,24 +432,17 @@ public class Play extends State {
 
         player.addAnimation("attackRight", playerAttackRight);
         player.addAnimation("attackLeft", playerAttackLeft);
+        player.getSounds().add(content.getSound("Attack"));
 
         player.setWeapon(new AABB(player.getAABB().getCentre().x, player.getAABB().getCentre().y + 4, 6, 3));
 
         enemies = new ArrayList<Enemy>();
         enemies.addAll(generator.getEnemies());
-       /* Animation a = new Animation(content.getTexture("Enemy"),1,1, 10f);
 
-        Enemy bad = new Enemy(a,"idle", new AABB(new Vector2(200,100),new Vector2(31,31)));
-        bad.addAnimation("attack",new Animation(content.getTexture("EnemyAttack"),1,7, 0.08f));
-        a =new Animation(content.getTexture("EnemyMove"),1,6,0.5f);
-        bad.addAnimation("Right",a);
-        a =new Animation(content.getTexture("EnemyMove"),1,6,0.5f);
-        a.setFlipX(true);
-        bad.addAnimation("Left",a);
-        bad.setWeapon(new AABB(100, 100, 7f, 7f));
-        enemies.add(bad);*/
 
         terrain = generator.getTerrain();
+        player.reset(generator.getStartPosition());
+
     }
 
     public float getTime() { return timeTaken; }

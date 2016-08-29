@@ -2,9 +2,13 @@ package com.perceptiongames.engine.Entities;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.Vector2;
 import com.perceptiongames.engine.Game;
 import com.perceptiongames.engine.Handlers.Animation;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Player extends Entity {
 
@@ -17,6 +21,8 @@ public class Player extends Entity {
 
     private int health = 1;
     private int numberDeaths = 0;
+    private List<Sound> sounds;
+    private float lastAttack=0;
 
 
     private boolean attacking;
@@ -34,6 +40,8 @@ public class Player extends Entity {
         onGround = false; //Sets the player to off the ground by default
 
         attacking = false;
+        sounds = new ArrayList<Sound>();
+
     }
 
     public void reset(Vector2 position) {
@@ -50,7 +58,6 @@ public class Player extends Entity {
 
         if(getAnimationKey().contains("attack")) {
             velocity.x = 0;
-
             Animation current = getAnimation(getAnimationKey());
             switch (current.getCurrentFrame() + 1) {
                 case 1:
@@ -64,6 +71,7 @@ public class Player extends Entity {
                     break;
                 case 4:
                     weaponOffset = 26;
+                    weaponOffset = 26;
                     break;
             }
             if(getAnimationKey().equals("attackLeft")) weaponOffset = -weaponOffset;
@@ -76,13 +84,15 @@ public class Player extends Entity {
         }
 
 
-        if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) { //Checks if the player is on the ground and if they want to jump
+        if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE) &&onGround) { //Checks if the player is on the ground and if they want to jump
             setVelocity(velocity.x, -940f); //Sets their velocity to the escape jump speed
             onGround = false;
         }
 
         if(Gdx.input.isKeyPressed(Input.Keys.A)) {
-            if(Gdx.input.isTouched()) {
+            if(Gdx.input.isTouched()&& lastAttack>1) {
+                lastAttack=0;
+                sounds.get(0).play(0.1f);
                 setCurrentAnimation("attackLeft", 1);
                 attacking = true;
                 if(onGround) velocity.x = 0;
@@ -100,7 +110,9 @@ public class Player extends Entity {
             }
         }
         else if(Gdx.input.isKeyPressed(Input.Keys.D)) {
-            if(Gdx.input.isTouched()) {
+            if(Gdx.input.isTouched() &&lastAttack>1) {
+                lastAttack=0;
+                sounds.get(0).play(0.1f);
                 setCurrentAnimation("attackRight", 1);
                 attacking = true;
 
@@ -134,6 +146,7 @@ public class Player extends Entity {
     @Override
     public void update(float dt) {
         if(!live) return;
+        lastAttack+=dt;
 
         int flags = aabb.getCollisionFlags();
         if((flags & AABB.TOP_BITS) == AABB.TOP_BITS) {
@@ -238,4 +251,11 @@ public class Player extends Entity {
 
     public boolean isAttacking() { return attacking; }
 
+    public List<Sound> getSounds() {
+        return sounds;
+    }
+
+    public void setSounds(List<Sound> sounds) {
+        this.sounds = sounds;
+    }
 }

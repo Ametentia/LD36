@@ -177,6 +177,7 @@ public class Enemy extends Entity {
 
     public void hit()
     {
+        this.attacking=false;
         this.live=false;
     }
     public int getCurrent() { return current; }
