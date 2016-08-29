@@ -2,9 +2,6 @@ package com.perceptiongames.engine.Entities;
 
 import com.perceptiongames.engine.Handlers.Animation;
 
-/**
- * Created by matt on 29/08/16.
- */
 public class Button extends Entity{
 
     private String text;

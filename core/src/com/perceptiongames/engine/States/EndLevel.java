@@ -36,9 +36,12 @@ public class EndLevel extends State {
         player = play.getPlayer();
 
         totalPoints = 500f / (float) Math.floor(play.getTime());
-        totalPoints += 40f * player.getEnemiesKilled();
+        totalPoints += 100f * player.getEnemiesKilled();
         totalPoints -= 50f * player.getNumberDeaths();
 
+        totalPoints = round(totalPoints);
+
+        player.addPoints((int)totalPoints);
         sr = new ShapeRenderer();
         sr.setColor(Color.BLACK);
     }
@@ -66,13 +69,22 @@ public class EndLevel extends State {
         mouse.set(100, 100, 0);
         camera.unproject(mouse);
         font.draw(batch, "Level Completed!", mouse.x, mouse.y);
-        font.draw(batch, "Time Taken: 500pts / " + Math.floor(play.getTime()), mouse.x, mouse.y + 30);
+        font.draw(batch, "Time Taken: 5000pts / " + (int)Math.floor(play.getTime()), mouse.x, mouse.y + 30);
 
-        font.draw(batch, "Enemies Killed: 40pts x " + player.getEnemiesKilled(), mouse.x, mouse.y + 60);
+        font.draw(batch, "Enemies Killed: 100pts x " + player.getEnemiesKilled(), mouse.x, mouse.y + 60);
         font.draw(batch, "Deaths: -50pts x " + player.getNumberDeaths(), mouse.x, mouse.y + 90);
 
-        font.draw(batch, "Total Points: " + totalPoints, mouse.x, mouse.y + 150);
+        font.draw(batch, "Points Earned: " + (int)totalPoints, mouse.x, mouse.y + 150);
+        font.draw(batch, "Total Points: " + player.getTotalPoints(), mouse.x, mouse.y + 180);
         batch.end();
+    }
+
+    private float round(float number) {
+
+        number /= 10;
+
+        number = Math.round(number);
+        return number *= 10;
     }
 
     public void dispose() {}

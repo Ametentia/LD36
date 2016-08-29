@@ -6,6 +6,7 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.Vector2;
 import com.perceptiongames.engine.Game;
 import com.perceptiongames.engine.Handlers.Animation;
+import com.perceptiongames.engine.States.Play;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +28,8 @@ public class Player extends Entity {
 
     private boolean attacking;
 
+    private int totalPoints;
+
     /**
      * Sets up the local variables for the player
      * @param animation The animation for the player
@@ -43,6 +46,7 @@ public class Player extends Entity {
         sounds = new ArrayList<Sound>();
 
         enemiesKilled = 0;
+        totalPoints = 0;
     }
 
     public void reset(Vector2 position) {
@@ -94,7 +98,7 @@ public class Player extends Entity {
         if(Gdx.input.isKeyPressed(Input.Keys.A)) {
             if(Gdx.input.isTouched()&& lastAttack>1) {
                 lastAttack=0;
-                sounds.get(0).play(0.5f);
+                sounds.get(0).play(Play.AUDIO_VOLUME);
                 setCurrentAnimation("attackLeft", 1);
                 attacking = true;
                 if(onGround) velocity.x = 0;
@@ -111,7 +115,7 @@ public class Player extends Entity {
         else if(Gdx.input.isKeyPressed(Input.Keys.D)) {
             if(Gdx.input.isTouched() &&lastAttack>1) {
                 lastAttack=0;
-                sounds.get(0).play(0.5f);
+                sounds.get(0).play(Play.AUDIO_VOLUME);
                 setCurrentAnimation("attackRight", 1);
                 attacking = true;
 
@@ -219,6 +223,7 @@ public class Player extends Entity {
     public boolean isOnGround() { return onGround; }
     public int getNumberDeaths() { return numberDeaths; }
     public int getHealth() { return health; }
+    public int getTotalPoints() { return totalPoints; }
 
     public void setVelocity(float x, float y) {
         setVelocity(new Vector2(x, y));
@@ -246,4 +251,5 @@ public class Player extends Entity {
         this.weapon = weapon;
         weapon.setSensor(true);
     }
+    public void addPoints(int points) { totalPoints += points; }
 }

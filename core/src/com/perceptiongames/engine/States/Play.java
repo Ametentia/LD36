@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.perceptiongames.engine.Entities.AABB;
+import com.perceptiongames.engine.Entities.Button;
 import com.perceptiongames.engine.Entities.Enemy;
 import com.perceptiongames.engine.Entities.Player;
 import com.perceptiongames.engine.Game;
@@ -18,6 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Play extends State {
+
+    public static float MUSIC_VOLUME;
+    public static float AUDIO_VOLUME;
 
     private ShapeRenderer debug;
     private BitmapFont debugFont;
@@ -43,6 +47,13 @@ public class Play extends State {
     private float cameraYOffset;
     private OrthographicCamera hudCamera;
 
+    private boolean musicOn;
+    private boolean audioOn;
+    private Button musicToggle;
+    private Button audioToggle;
+
+    private boolean touched;
+
     public Play(GameStateManager gsm) {
         super(gsm);
 
@@ -67,9 +78,14 @@ public class Play extends State {
         timeTaken = 0;
         enemyReset = 0;
 
+        MUSIC_VOLUME = 1f;
+        AUDIO_VOLUME = 1f;
+
         content.getMusic("Music").setLooping(true);
+        content.getMusic("Music").setVolume(MUSIC_VOLUME);
         content.getMusic("Music").play();
-        content.getMusic("Music").setVolume(0.2f);
+
+        musicOn = true;
     }
 
     private void renderHUD() {
@@ -87,9 +103,25 @@ public class Play extends State {
         Color b = new Color(253f/255,0,0,0.75f);
         debug.rect(mouse.x, mouse.y, 200, 75, a , a, a, a);
         debug.triangle(mouse.x + 200, mouse.y, mouse.x + 200, mouse.y + 75, mouse.x + 375, mouse.y, a, a, b);
+
+        mouse.set(Game.WIDTH, 0, 0);
+        hudCamera.unproject(mouse);
+        mouse.y--;
+
+        musicToggle.setPosition(mouse.x - 170, mouse.y + 22);
+        audioToggle.setPosition(mouse.x - 70, mouse.y + 22);
+
+        debug.rect(mouse.x - 200, mouse.y, 200, 75, a , a, a, a);
+        debug.triangle(mouse.x - 200, mouse.y, mouse.x - 200, mouse.y + 75, mouse.x - 375, mouse.y, a, a, b);
+
         debug.end();
         Gdx.gl.glDisable(GL20.GL_BLEND);
         batch.begin();
+        musicToggle.render(batch);
+        audioToggle.render(batch);
+        debugFont.draw(batch, "Level: " + levelNumber, mouse.x - 140, mouse.y + 5);
+        mouse.set(0, 0, 0);
+        hudCamera.unproject(mouse);
         debugFont.draw(batch, "Time: " + Math.round(timeTaken), mouse.x + 20,mouse.y + 5);
         debugFont.draw(batch, "Death Count: "+player.getNumberDeaths(),mouse.x+20,mouse.y+30);
         debugFont.draw(batch, "Enemies Killed: "+ player.getEnemiesKilled(), mouse.x + 20, mouse.y + 55);
@@ -97,6 +129,7 @@ public class Play extends State {
         debug.setProjectionMatrix(camera.combined);
         batch.setProjectionMatrix(camera.combined);
     }
+
     @Override
     public void update(float dt) {
         boolean movingCamera=false;
@@ -147,6 +180,30 @@ public class Play extends State {
 
         for(Enemy e : enemies) { e.update(dt); }
 
+
+        if(musicToggle.getAABB().contains(new Vector2(Gdx.input.getX(), Gdx.input.getY())) && isJustClicked()) {
+            musicOn = !musicOn;
+            if(musicOn) {
+                musicToggle.setCurrentAnimation("On");
+                content.getMusic("Music").play();
+            }
+            else {
+                musicToggle.setCurrentAnimation("Off");
+                content.getMusic("Music").stop();
+            }
+        }
+
+        if(audioToggle.getAABB().contains(new Vector2(Gdx.input.getX(), Gdx.input.getY())) && isJustClicked()) {
+            audioOn = !audioOn;
+            if(audioOn) {
+                AUDIO_VOLUME = 1;
+                audioToggle.setCurrentAnimation("On");
+            }
+            else {
+                AUDIO_VOLUME = 0;
+                audioToggle.setCurrentAnimation("Off");
+            }
+        }
 
         for (int i = 0; i < terrain.length; i++) {
             for(int j = 0; j < terrain[0].length; j++) {
@@ -206,7 +263,8 @@ public class Play extends State {
         camera.update();
         hudCamera.update();
 
-        timeTaken += dt;
+        if(player.isLive())
+            timeTaken += dt;
     }
 
     @Override
@@ -246,6 +304,7 @@ public class Play extends State {
 
         renderHUD();
 
+        touched = Gdx.input.isTouched();
     }
 
     @Override
@@ -371,6 +430,11 @@ public class Play extends State {
         content.loadTexture("EnemyMove2", "Soldier3Move.png");
         content.loadTexture("EnemyAttack2", "Soldier3Attack.png");
 
+        content.loadTexture("AudioOn", "Icons/audioOn.png");
+        content.loadTexture("AudioOff", "Icons/audioOff.png");
+
+        content.loadTexture("MusicOn", "Icons/musicOn.png");
+        content.loadTexture("MusicOff", "Icons/musicOff.png");
 
         content.loadTexture("Ladder", "Terrain/Ladder.png");
         content.loadTexture("EndDoor", "Terrain/EndDoor.png");
@@ -427,8 +491,16 @@ public class Play extends State {
         terrain = generator.getTerrain();
 
         player.setPosition(generator.getStartPosition());
+
+        musicToggle = new Button(new Animation(content.getTexture("MusicOn"), 1, 1), "On", new AABB(100, 100, 24, 24));
+        musicToggle.addAnimation("Off", new Animation(content.getTexture("MusicOff"), 1, 1));
+
+        audioToggle = new Button(new Animation(content.getTexture("AudioOn"), 1, 1), "On", new AABB(200, 100, 24, 24));
+        audioToggle.addAnimation("Off", new Animation(content.getTexture("AudioOff"), 1, 1));
     }
 
     public float getTime() { return timeTaken; }
     public Player getPlayer() { return player; }
+
+    public boolean isJustClicked() { return Gdx.input.isTouched() && !touched; }
 }
