@@ -78,8 +78,8 @@ public class Play extends State {
         timeTaken = 0;
         enemyReset = 0;
 
-        MUSIC_VOLUME = 1f;
-        AUDIO_VOLUME = 1f;
+        MUSIC_VOLUME = 0.1f;
+        AUDIO_VOLUME = 0.2f;
 
         content.getMusic("Music").setLooping(true);
         content.getMusic("Music").setVolume(MUSIC_VOLUME);

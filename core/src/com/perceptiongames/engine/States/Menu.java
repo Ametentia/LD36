@@ -66,6 +66,10 @@ public class Menu extends State{
                 {
                     gsm.pushState(GameStateManager.PLAY);
                 }
+                else if(b.getText().equals("Credits"))
+                {
+                    gsm.pushState(GameStateManager.CREDITS);
+                }
 
             }
         }

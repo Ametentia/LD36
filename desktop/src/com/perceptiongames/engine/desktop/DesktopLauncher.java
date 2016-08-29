@@ -20,7 +20,7 @@ public class DesktopLauncher {
         // Closes with exit code 0 like it should
         config.forceExit = false;
 		//System.setProperty("org.lwjgl.opengl.Window.undecorated", "true");
-        config.vSyncEnabled = false;
+        config.vSyncEnabled = true;
 
 		new LwjglApplication(new Game(), config);
 	}
