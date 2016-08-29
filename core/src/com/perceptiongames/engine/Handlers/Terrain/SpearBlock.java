@@ -28,7 +28,7 @@ public class SpearBlock extends Tile {
 
     @Override
     public void render(SpriteBatch batch) {
-        animation.render(batch);
+        animation.render(batch, animation.getPosition());
     }
 
     public void update(float dt) {

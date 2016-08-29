@@ -90,7 +90,7 @@ public class Animation {
      * Draws the animation on the screen on its current frame
      * @param batch The Sprite Batch used to render the texture on screen
      */
-    public void render(SpriteBatch batch) {
+    public void render(SpriteBatch batch, Vector2 position) {
         int width = texture.getTexture().getWidth() / columns;
         int height = texture.getTexture().getHeight() / rows;
 
@@ -105,7 +105,7 @@ public class Animation {
 
     // Getters
     public TextureRegion getTexture() { return texture; }
-    public Vector2 getPosition() { return position; }
+    public Vector2 getPosition() { return new Vector2(position.x + offsetX, position.y + offsetY); }
     public int getRows() { return rows; }
     public int getColumns() { return columns; }
     public boolean isFlipX() { return flipX; }

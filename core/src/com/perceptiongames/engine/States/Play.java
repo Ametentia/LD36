@@ -2,6 +2,7 @@ package com.perceptiongames.engine.States;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -111,9 +112,7 @@ public class Play extends State {
                         }
                     }
                 }
-                for(Enemy e: enemies) {
-                    e.getAABB().overlaps(current.getAABB());
-                }
+
                 if(player.getAABB().overlaps(current.getAABB())) {
                     player.getAnimation(player.getAnimationKey()).setPosition(player.getPosition());
 
@@ -122,13 +121,26 @@ public class Play extends State {
                     else if(current instanceof Sensor) { sensorCollision((Sensor) current); }
                     else if(current instanceof FallingBlock) { fallingBlockCollision((FallingBlock) current); }
                 }
+                if(player.getWeapon().overlaps(current.getAABB()) && player.isAttacking() && !current.getAABB().isSensor()) {
+                    System.out.println("Stabbing: [" + current.getRow() + ":" + current.getColumn() + "]");
+                }
+
+                for(Enemy e: enemies) {
+                    e.getAABB().overlaps(current.getAABB());
+                    if(e.isAttacking() && e.getWeapon().overlaps(player.getAABB())) {
+                        System.out.println("Enemy Stabbing Player");
+                    }
+                    if(player.getWeapon().overlaps(e.getAABB()) && player.isAttacking()) {
+                        System.out.println("Stabbing Enemy");
+                    }
+                }
             }
         }
 
         if(player.isLive()) {
             camera.position.set(
-                    Math.max(Math.min(player.getAABB().getCentre().x, Game.WORLD_WIDTH - 320), 320),
-                    Math.max(Math.min(player.getAABB().getCentre().y, Game.WORLD_HEIGHT - 180), 180),
+                    Math.max(Math.min(player.getAABB().getPosition().x + 16, Game.WORLD_WIDTH - 320), 320),
+                    Math.max(Math.min(player.getAABB().getPosition().y + 32, Game.WORLD_HEIGHT - 180), 180),
                     0);
         }
 
@@ -157,12 +169,25 @@ public class Play extends State {
 
         player.render(batch);
 
+        mouse.set(100, 100, 0);
+        camera.unproject(mouse);
 
+        debugFont.draw(batch, "Attacking: " + player.isAttacking(), mouse.x, mouse.y);
 
         debug.begin(ShapeRenderer.ShapeType.Line);
-        for(Enemy e : enemies) { e.render(batch); e.getAABB().debugRender(debug); }
+        for(Enemy e : enemies) {
+            e.render(batch);
+            e.getAABB().debugRender(debug);
+            e.getWeapon().debugRender(debug);
+        }
+        mouse.set(100, 150, 0);
+        camera.unproject(mouse);
+        debugFont.draw(batch, "Current: " + enemies.get(0).getCurrent(), mouse.x, mouse.y);
         batch.end();
         player.getAABB().debugRender(debug);
+        debug.setColor(Color.BLUE);
+        player.getWeapon().debugRender(debug);
+        debug.setColor(Color.RED);
         for (int i = 0; i < terrain.length; i++) {
             for (int j = 0; j < terrain[0].length; j++) {
                 if(terrain[i][j] == null) continue;
@@ -306,16 +331,19 @@ public class Play extends State {
         player.addAnimation("attackRight", playerAttackRight);
         player.addAnimation("attackLeft", playerAttackLeft);
 
+        player.setWeapon(new AABB(player.getAABB().getCentre().x, player.getAABB().getCentre().y + 4, 6, 3));
+
         enemies = new ArrayList<Enemy>();
         Animation a = new Animation(content.getTexture("Enemy"),1,1,10f);
 
         Enemy bad = new Enemy(a,"idle", new AABB(new Vector2(200,100),new Vector2(31,31)));
-        bad.addAnimation("attack",new Animation(content.getTexture("EnemyAttack"),1,7,0.1f));
+        bad.addAnimation("attack",new Animation(content.getTexture("EnemyAttack"),1,7, 0.8f));
         a =new Animation(content.getTexture("EnemyMove"),1,6,0.5f);
         bad.addAnimation("Right",a);
         a =new Animation(content.getTexture("EnemyMove"),1,6,0.5f);
         a.setFlipX(true);
         bad.addAnimation("Left",a);
+        bad.setWeapon(new AABB(100, 100, 7f, 7f));
         enemies.add(bad);
 
         generator =  new TerrainGenerator(content);

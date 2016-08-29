@@ -40,7 +40,7 @@ public abstract class Entity {
         }
     }
 
-    public void render(SpriteBatch batch) { if(live) { animations.get(currentAnimation).render(batch); } }
+    public void render(SpriteBatch batch) { if(live) { animations.get(currentAnimation).render(batch, getPosition()); } }
 
     // Getters
     public AABB getAABB() { return aabb; }
@@ -54,6 +54,7 @@ public abstract class Entity {
     public void setPosition(float x, float y) { setPosition(new Vector2(x, y)); }
     public void setPosition(Vector2 position) {
         aabb.setCentre(position.add(aabb.getHalfSize()));
+        animations.get(currentAnimation).setPosition(position);
     }
     public void setCurrentAnimation(String animation) {
         if(!animations.containsKey(animation))

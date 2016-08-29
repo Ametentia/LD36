@@ -2,12 +2,9 @@ package com.perceptiongames.engine.Entities;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.Vector2;
 import com.perceptiongames.engine.Game;
 import com.perceptiongames.engine.Handlers.Animation;
-
-import java.util.HashMap;
 
 public class Player extends Entity {
 
@@ -15,8 +12,13 @@ public class Player extends Entity {
     private boolean onGround;
     private boolean onLadder;
 
+    private AABB weapon;
+    private float weaponOffset;
+
     private int health = 1;
     private int numberDeaths = 0;
+
+    private boolean attacking;
 
     /**
      * Sets up the local variables for the player
@@ -29,9 +31,12 @@ public class Player extends Entity {
         velocity = new Vector2(); //Sets up a vector with values 0,0
 
         onGround = false; //Sets the player to off the ground by default
+
+        attacking = false;
     }
 
     public void reset(Vector2 position) {
+        setCurrentAnimation("idle");
         setPosition(new Vector2(position));
         health = 1;
         live = true;
@@ -42,8 +47,33 @@ public class Player extends Entity {
      */
     private void handleInput() {
 
-        if(onGround && getAnimationKey().contains("attack"))
+        if(getAnimationKey().contains("attack")) {
             velocity.x = 0;
+
+            Animation current = getAnimation(getAnimationKey());
+            switch (current.getCurrentFrame() + 1) {
+                case 1:
+                    weaponOffset = 17;
+                    break;
+                case 2:
+                    weaponOffset = 23;
+                    break;
+                case 3:
+                    weaponOffset = 32;
+                    break;
+                case 4:
+                    weaponOffset = 26;
+                    break;
+            }
+            if(getAnimationKey().equals("attackLeft")) weaponOffset = -weaponOffset;
+        }
+        else {
+            if(attacking) {
+                attacking = false;
+                weaponOffset = 0;
+            }
+        }
+
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) { //Checks if the player is on the ground and if they want to jump
             setVelocity(velocity.x, -940f); //Sets their velocity to the escape jump speed
@@ -53,6 +83,7 @@ public class Player extends Entity {
         if(Gdx.input.isKeyPressed(Input.Keys.A)) {
             if(Gdx.input.isTouched()) {
                 setCurrentAnimation("attackLeft", 1);
+                attacking = true;
                 if(onGround) velocity.x = 0;
             }
             else if(!getAnimationKey().contains("attack")) {
@@ -70,6 +101,7 @@ public class Player extends Entity {
         else if(Gdx.input.isKeyPressed(Input.Keys.D)) {
             if(Gdx.input.isTouched()) {
                 setCurrentAnimation("attackRight", 1);
+                attacking = true;
 
                 if(onGround) velocity.x = 0;
             }
@@ -168,6 +200,8 @@ public class Player extends Entity {
 
         setPosition(newPos);
         super.update(dt);
+
+        weapon.setCentre(new Vector2(aabb.getCentre().x + weaponOffset, aabb.getCentre().y + 7));
         aabb.setCollisionFlags(AABB.NONE_BITS);
         onLadder = false;
     }
@@ -191,7 +225,16 @@ public class Player extends Entity {
             live = false;
     }
 
+    public void setWeapon(AABB weapon) {
+        this.weapon = weapon;
+        weapon.setSensor(true);
+    }
+    public AABB getWeapon() { return weapon; }
+
     public void incrementDeaths() { numberDeaths++; }
 
     public void setOnLadder() { onLadder = true; }
+
+    public boolean isAttacking() { return attacking; }
+
 }

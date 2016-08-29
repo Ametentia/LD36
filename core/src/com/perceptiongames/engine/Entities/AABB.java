@@ -128,6 +128,7 @@ public final class AABB {
     public float getHeight() { return halfSize.y * 2; }
 
     public boolean hasCollisionBit(int bits) { return (collisionFlags & bits) == bits; }
+    public boolean isSensor() { return isSensor; }
 
     // Setters
     public void setCentre(Vector2 centre) { this.centre.set(centre); }
