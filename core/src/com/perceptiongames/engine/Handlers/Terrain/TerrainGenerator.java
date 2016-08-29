@@ -199,7 +199,11 @@ public class TerrainGenerator {
             room = 0;
         }
         else if(type == RoomType.Cross) {
-            room = 4;
+            room = random.nextInt(10);
+        }
+        else if(type == RoomType.Standard)
+        {
+            room=random.nextInt(10);
         }
         else {
             room = random.nextInt(5);

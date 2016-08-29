@@ -32,6 +32,7 @@ public class Play extends State {
     private TerrainGenerator generator;
     private Tile[][] terrain;
     private Texture bg;
+    private Texture outline;
 
     private boolean showDeathPoints;
 
@@ -55,6 +56,9 @@ public class Play extends State {
         camera.zoom = 0.7f;
         bg = content.getTexture("Background");
         bg.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
+
+        outline = content.getTexture("BrokenWall1");
+        outline.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
 
         deathPoints = new ArrayList<Vector2>();
         showDeathPoints = false;
@@ -212,9 +216,12 @@ public class Play extends State {
         debug.setProjectionMatrix(camera.combined);
 
         batch.begin();
-
-        batch.draw(bg, -320, -180,
+        batch.draw(outline, -320, -180,
                 Game.WORLD_WIDTH + 640, Game.WORLD_HEIGHT + 360, 0, 0,
+                Game.WORLD_WIDTH / bg.getWidth(), Game.WORLD_HEIGHT / bg.getHeight());
+
+        batch.draw(bg, 0, 0,
+                Game.WORLD_WIDTH , Game.WORLD_HEIGHT , 0, 0,
                 Game.WORLD_WIDTH / bg.getWidth(), Game.WORLD_HEIGHT / bg.getHeight());
 
         for(Tile[] column : terrain) {
