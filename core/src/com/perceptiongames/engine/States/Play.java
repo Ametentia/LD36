@@ -52,7 +52,7 @@ public class Play extends State {
         debug = new ShapeRenderer();
         debug.setColor(1, 0, 0, 1);
         debugFont = content.getFont("Ubuntu");
-        camera.zoom =0.5f;
+        camera.zoom =0.7f;
         bg = content.getTexture("Background");
         bg.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
 
@@ -62,6 +62,7 @@ public class Play extends State {
         hudCamera = new OrthographicCamera();
         hudCamera.setToOrtho(true);
         timeTaken = 0;
+        content.getMusic("new").play();
     }
     public void madeHud(ShapeRenderer sr)
     {
@@ -91,22 +92,22 @@ public class Play extends State {
         boolean movingCamera=false;
         if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
             movingCamera=true;
-            if(cameraXOffset-player.getAABB().getHeight()>-Game.WIDTH/4)
+            if(cameraXOffset-player.getAABB().getHeight()>-Game.WIDTH/2)
                 cameraXOffset-=8;
         }
         else if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
             movingCamera=true;
-            if(cameraXOffset+player.getAABB().getWidth()<Game.WIDTH/4)
+            if(cameraXOffset+player.getAABB().getWidth()<Game.WIDTH/2)
                 cameraXOffset+=8;
         }
         else if(Gdx.input.isKeyPressed(Input.Keys.UP)) {
             movingCamera=true;
-            if(cameraYOffset-player.getAABB().getHeight()/2>-Game.HEIGHT/4)
+            if(cameraYOffset-player.getAABB().getHeight()/2>-Game.HEIGHT/2)
                 cameraYOffset-=8;
         }
         else if(Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
             movingCamera=true;
-            if(cameraYOffset+player.getAABB().getHeight()/2<Game.HEIGHT/4)
+            if(cameraYOffset+player.getAABB().getHeight()/2<Game.HEIGHT/2)
                 cameraYOffset+=8;
         }
         else if(Gdx.input.isKeyPressed(Input.Keys.Q)) {
@@ -370,6 +371,7 @@ public class Play extends State {
 
         content.loadMusic("Music", "testMusic.mp3");
         content.loadSound("Attack", "attack1.mp3");
+        content.loadMusic("new", "music.mp3");
     }
 
     private void generateEntities() {
