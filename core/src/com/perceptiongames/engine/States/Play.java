@@ -15,6 +15,7 @@ import com.perceptiongames.engine.Handlers.Animation;
 import com.perceptiongames.engine.Handlers.GameStateManager;
 import com.perceptiongames.engine.Handlers.Terrain.*;
 
+import javax.sound.sampled.Line;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -112,9 +113,6 @@ public class Play extends State {
         musicToggle.setPosition(mouse.x - 170, mouse.y + 22);
         audioToggle.setPosition(mouse.x - 70, mouse.y + 22);
 
-        musicToggle.getAABB().debugRender(debug);
-        audioToggle.getAABB().debugRender(debug);
-
         debug.rect(mouse.x - 200, mouse.y, 200, 75, a , a, a, a);
         debug.triangle(mouse.x - 200, mouse.y, mouse.x - 200, mouse.y + 75, mouse.x - 375, mouse.y, a, a, b);
 
@@ -205,7 +203,7 @@ public class Play extends State {
         if(audioToggle.getAABB().contains(new Vector2(mouse.x, mouse.y)) && isJustClicked()) {
             audioOn = !audioOn;
             if(audioOn) {
-                AUDIO_VOLUME = 1;
+                AUDIO_VOLUME = 0.1f;
                 audioToggle.setCurrentAnimation("On");
             }
             else {
@@ -222,9 +220,6 @@ public class Play extends State {
                 if(current instanceof SpearBlock) current.update(dt);
                 if(current instanceof FallingBlock) {
                     current.update(dt);
-                    if(!((FallingBlock)current).isAlive()) {
-                        terrain[current.getColumn()][current.getRow()] = null;
-                    }
 
                     if(current.isActive() && player.getPosition().y > current.getAABB().getMaximum().y) {
                         if(Math.abs(player.getPosition().x - current.getAABB().getPosition().x) < Tile.SIZE) {
@@ -291,13 +286,20 @@ public class Play extends State {
                 Game.WORLD_WIDTH , Game.WORLD_HEIGHT , 0, 0,
                 Game.WORLD_WIDTH / bg.getWidth(), Game.WORLD_HEIGHT / bg.getHeight());
 
+
+        player.render(batch);
+
+        debug.begin(ShapeRenderer.ShapeType.Line);
         for(Tile[] column : terrain) {
             for(Tile tile : column) {
                 if(tile != null) { tile.render(batch); }
+                if(tile instanceof Sensor) {
+                    tile.getAABB().debugRender(debug);
+                }
             }
         }
+        debug.end();
 
-        player.render(batch);
 
         for(Enemy e : enemies) { e.render(batch); }
 
@@ -392,6 +394,17 @@ public class Play extends State {
         for(Enemy e : enemies) {
             if(!e.isLive()) {
                 e.setLive(true);
+            }
+        }
+
+        for(Tile[] t : terrain) {
+            for(Tile current : t) {
+                if(current instanceof FallingBlock) {
+                    if(!((FallingBlock) current).isAlive())
+                        ((FallingBlock) current).reset();
+                    else
+                        current.setActive(false);
+                }
             }
         }
     }

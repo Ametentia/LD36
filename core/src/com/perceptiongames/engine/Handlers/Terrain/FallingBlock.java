@@ -9,6 +9,8 @@ public class FallingBlock extends Tile {
 
     private Texture texture;
 
+    private Vector2 initialPos;
+
     private float velocity;
     private float yBound;
 
@@ -25,6 +27,8 @@ public class FallingBlock extends Tile {
         alive = true;
 
         yBound = aabb.getPosition().y + (Tile.SIZE * 3);
+
+        initialPos = new Vector2(aabb.getPosition());
     }
 
     @Override
@@ -50,4 +54,12 @@ public class FallingBlock extends Tile {
 
     public void setPlayerColliding(boolean c) { isPlayerColliding = c; }
     public void setVelocity(float y) { velocity = y; }
+
+    public void reset() {
+        System.out.println("Resetting");
+        aabb.setPosition(initialPos);
+        alive = true;
+        active = false;
+        isPlayerColliding = false;
+    }
 }
