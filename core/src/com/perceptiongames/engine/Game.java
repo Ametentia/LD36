@@ -38,7 +38,6 @@ public class Game extends ApplicationAdapter {
 
     private float time;
     private final float DELTA = 1/60f;
-    private final float PHYSICS_DELTA = 1/120f;
 
 	@Override
 	public void create () {
