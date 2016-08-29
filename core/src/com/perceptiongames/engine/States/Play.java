@@ -86,6 +86,7 @@ public class Play extends State {
         content.getMusic("Music").play();
 
         musicOn = true;
+        audioOn = true;
     }
 
     private void renderHUD() {
@@ -104,12 +105,15 @@ public class Play extends State {
         debug.rect(mouse.x, mouse.y, 200, 75, a , a, a, a);
         debug.triangle(mouse.x + 200, mouse.y, mouse.x + 200, mouse.y + 75, mouse.x + 375, mouse.y, a, a, b);
 
-        mouse.set(Game.WIDTH, 0, 0);
+        mouse.set(viewport.getScreenWidth(), 0, 0);
         hudCamera.unproject(mouse);
         mouse.y--;
 
         musicToggle.setPosition(mouse.x - 170, mouse.y + 22);
         audioToggle.setPosition(mouse.x - 70, mouse.y + 22);
+
+        musicToggle.getAABB().debugRender(debug);
+        audioToggle.getAABB().debugRender(debug);
 
         debug.rect(mouse.x - 200, mouse.y, 200, 75, a , a, a, a);
         debug.triangle(mouse.x - 200, mouse.y, mouse.x - 200, mouse.y + 75, mouse.x - 375, mouse.y, a, a, b);
@@ -132,6 +136,9 @@ public class Play extends State {
 
     @Override
     public void update(float dt) {
+        if(Gdx.input.isKeyJustPressed(Input.Keys.F11)) {
+            Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
+        }
         boolean movingCamera=false;
         if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
             movingCamera=true;
@@ -181,7 +188,9 @@ public class Play extends State {
         for(Enemy e : enemies) { e.update(dt); }
 
 
-        if(musicToggle.getAABB().contains(new Vector2(Gdx.input.getX(), Gdx.input.getY())) && isJustClicked()) {
+        mouse.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+        hudCamera.unproject(mouse);
+        if(musicToggle.getAABB().contains(new Vector2(mouse.x, mouse.y)) && isJustClicked()) {
             musicOn = !musicOn;
             if(musicOn) {
                 musicToggle.setCurrentAnimation("On");
@@ -193,7 +202,7 @@ public class Play extends State {
             }
         }
 
-        if(audioToggle.getAABB().contains(new Vector2(Gdx.input.getX(), Gdx.input.getY())) && isJustClicked()) {
+        if(audioToggle.getAABB().contains(new Vector2(mouse.x, mouse.y)) && isJustClicked()) {
             audioOn = !audioOn;
             if(audioOn) {
                 AUDIO_VOLUME = 1;
