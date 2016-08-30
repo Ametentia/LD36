@@ -15,6 +15,7 @@ public class GameStateManager {
     public static final int PAUSE = 2;
     public static final int END_LEVEL = 3;
     public static final int CREDITS = 4;
+    public static final int FINISH = 5;
 
     public GameStateManager(Game game) {
         this.game = game;
@@ -35,6 +36,8 @@ public class GameStateManager {
                 return new Menu(this);
             case CREDITS:
                 return new Credits(this);
+            case FINISH:
+                return new Finish(this);
             default:
                 throw new IllegalArgumentException();
         }

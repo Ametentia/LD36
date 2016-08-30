@@ -1,9 +1,13 @@
 package com.perceptiongames.engine.Entities;
 
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.perceptiongames.engine.Game;
 import com.perceptiongames.engine.Handlers.Animation;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.badlogic.gdx.math.MathUtils.floor;
 import static com.badlogic.gdx.math.MathUtils.random;
@@ -21,25 +25,33 @@ public class Enemy extends Entity {
     private boolean attacking;
     private Vector2 weaponOffset;
     private AABB weapon;
+    private List<Sound> sounds;
+    private float playerDir;
 
     public Enemy(Animation animation, String animationName, AABB aabb) {
         super(animation, animationName, aabb);
         onGround=false;
-
+        playerDir=0;
         actions = new int[] { 0, 1, 2, 3 };
         current=3;
 
         attacking = false;
         weaponOffset = new Vector2();
+        sounds = new ArrayList<Sound>();
+
     }
 
     @Override
     public void update(float dt) {
         if(!live) return;
 
-        if(ticker > 3) {
+        if(ticker > 5 && playerDir==0) {
             ticker = 0;
             current = random.nextInt(4) + 1;
+        }
+        else if(ticker > 5)
+        {
+            current=4;
         }
 
 
@@ -107,6 +119,8 @@ public class Enemy extends Entity {
             case 4:
                 this.setCurrentAnimation("attack");
                 attacking = true;
+                if(playerDir!=0)
+                    velocity.x=75*playerDir;
                 break;
         }
         Vector2 newPos = new Vector2();
@@ -189,5 +203,17 @@ public class Enemy extends Entity {
     public void setWeapon(AABB weapon) {
         this.weapon = weapon;
         this.weapon.setSensor(true);
+    }
+
+    public List<Sound> getSounds() {
+        return sounds;
+    }
+
+    public void setSounds(List<Sound> sounds) {
+        this.sounds = sounds;
+    }
+    public void playerDirection(float dir)
+    {
+        this.playerDir=dir;
     }
 }

@@ -27,6 +27,7 @@ public class Player extends Entity {
     private int enemiesKilled;
 
     private boolean attacking;
+    private float airTime =0;
 
     private int totalPoints;
 
@@ -93,6 +94,7 @@ public class Player extends Entity {
         if(Gdx.input.isKeyPressed(Input.Keys.SPACE) &&onGround) { //Checks if the player is on the ground and if they want to jump
             setVelocity(velocity.x, -940f); //Sets their velocity to the escape jump speed
             onGround = false;
+            sounds.get(2).play(Play.AUDIO_VOLUME);
         }
 
         if(Gdx.input.isKeyPressed(Input.Keys.A)) {
@@ -147,9 +149,15 @@ public class Player extends Entity {
     public void update(float dt) {
         if(!live) return;
         lastAttack+=dt;
+        if (!onGround){airTime+=dt;}
 
         int flags = aabb.getCollisionFlags();
         if((flags & AABB.TOP_BITS) == AABB.TOP_BITS) {
+            if(!onGround&& airTime>3)
+            {
+                sounds.get(1).play(Play.AUDIO_VOLUME);
+                airTime=0;
+            }
             onGround = true;
             if(velocity.y > 0) {
                 velocity.y = 0;
@@ -173,7 +181,13 @@ public class Player extends Entity {
 
         if(flags == AABB.NONE_BITS || flags == (AABB.SENSOR_BITS | AABB.NONE_BITS)) {
             if(getPosition().y + aabb.getHeight() == Game.WORLD_HEIGHT) { //If no collision, check if its on the world floor
+                if(!onGround && airTime>3)
+                {
+                    sounds.get(1).play(Play.AUDIO_VOLUME);
+                }
                 onGround = true;
+                airTime=0;
+
             }
             else {
                 onGround = false;
@@ -209,7 +223,12 @@ public class Player extends Entity {
         else if(newPos.y + aabb.getHeight() > Game.WORLD_HEIGHT) {
             newPos.y = Game.WORLD_HEIGHT - aabb.getHeight();
             velocity.y = 0;
+            if(!onGround&& airTime>3)
+            {
+                sounds.get(1).play(Play.AUDIO_VOLUME);
+            }
             onGround = true;
+            airTime=0;
         }
 
         setPosition(newPos);

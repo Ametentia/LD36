@@ -12,6 +12,14 @@ import java.util.*;
 
 public class TerrainGenerator {
 
+    public boolean isFinalLevel() {
+        return finalLevel;
+    }
+
+    public void setFinalLevel(boolean finalLevel) {
+        this.finalLevel = finalLevel;
+    }
+
     private enum RoomType {
 
         None(0, "None"),
@@ -60,6 +68,7 @@ public class TerrainGenerator {
     private boolean left, down;
 
     private Content content;
+    private boolean finalLevel=false;
 
     public TerrainGenerator(Content content) {
         textures = new Texture[7];
@@ -75,7 +84,7 @@ public class TerrainGenerator {
         terrain = new Tile[GRID_SIZE * ROOM_WIDTH][GRID_SIZE * ROOM_HEIGHT];
 
         enemies = new ArrayList<Enemy>();
-
+        finalLevel=true;
         generate();
     }
 
@@ -271,12 +280,23 @@ public class TerrainGenerator {
                         break;
                     case 'T':
                         if(xStart == endRoomX && yStart == endRoomY) {
-                            terrain[xIndex + col][yIndex + row] = new StandardTile(content.getTexture("EndDoor"),
-                                    new AABB(xOffset + (Tile.SIZE * col), yOffset + (Tile.SIZE * row), halfSize, halfSize),
-                                    false);
+                            if(!finalLevel) {
+                                terrain[xIndex + col][yIndex + row] = new StandardTile(content.getTexture("EndDoor"),
+                                        new AABB(xOffset + (Tile.SIZE * col), yOffset + (Tile.SIZE * row), halfSize, halfSize),
+                                        false);
 
-                            terrain[xIndex + col][yIndex + row].getAABB().setSensor(true);
-                            terrain[xIndex + col][yIndex + row].setDamage(-4);
+                                terrain[xIndex + col][yIndex + row].getAABB().setSensor(true);
+                                terrain[xIndex + col][yIndex + row].setDamage(-4);
+                            }
+                            else
+                            {
+                                terrain[xIndex + col][yIndex + row] = new StandardTile(content.getTexture("Amulet"),
+                                        new AABB(xOffset + (Tile.SIZE * col), yOffset + (Tile.SIZE * row), halfSize, halfSize),
+                                        false);
+
+                                terrain[xIndex + col][yIndex + row].getAABB().setSensor(true);
+                                terrain[xIndex + col][yIndex + row].setDamage(-100);
+                            }
                         }
                         else {
                             texture = -1;
@@ -328,15 +348,14 @@ public class TerrainGenerator {
             bad.addAnimation("attack", new Animation(content.getTexture("EnemyAttack" + enemyType), 1, 7, 0.08f));
         }
 
-        a = new Animation(content.getTexture("EnemyMove" + enemyType), 1, 6, 0.5f);
-        bad.addAnimation("Right",a);
+        Animation c = new Animation(content.getTexture("EnemyMove" + enemyType), 1, 6, 0.5f);
+        bad.addAnimation("Right",c);
 
-        a = new Animation(content.getTexture("EnemyMove" + enemyType), 1, 6, 0.5f);
-        a.setFlipX(true);
+        Animation b = new Animation(content.getTexture("EnemyMove" + enemyType), 1, 6, 0.5f);
+        b.setFlipX(true);
 
-        bad.addAnimation("Left",a);
+        bad.addAnimation("Left",b);
         bad.setWeapon(new AABB(100, 100, 7f, 7f));
-
         enemies.add(bad);
     }
 

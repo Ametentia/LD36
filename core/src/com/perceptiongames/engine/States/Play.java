@@ -54,6 +54,8 @@ public class Play extends State {
     private Button audioToggle;
 
     private boolean touched;
+    private int totalKills;
+    private float totalTime;
 
     public Play(GameStateManager gsm) {
         super(gsm);
@@ -61,6 +63,7 @@ public class Play extends State {
         levelNumber = 1;
         loadContent();
         generateEntities();
+        totalKills=0;
 
         debug = new ShapeRenderer();
         debug.setColor(1, 0, 0, 1);
@@ -132,8 +135,11 @@ public class Play extends State {
         batch.setProjectionMatrix(camera.combined);
     }
 
+
     @Override
     public void update(float dt) {
+
+
         if(Gdx.input.isKeyJustPressed(Input.Keys.F11)) {
             Gdx.graphics.setFullscreenMode(Gdx.graphics.getDisplayMode());
         }
@@ -183,7 +189,18 @@ public class Play extends State {
 
         player.update(dt);
 
-        for(Enemy e : enemies) { e.update(dt); }
+        for(Enemy e : enemies) {
+            if((e.getPosition().x-player.getAABB().getCentre().x)*(e.getPosition().x-player.getAABB().getCentre().x)
+                    + (e.getPosition().y-player.getAABB().getCentre().y)*(e.getPosition().y-player.getAABB().getCentre().y)<300*300)
+            {
+                e.playerDirection(-(e.getPosition().x-player.getAABB().getCentre().x)/Math.abs((e.getPosition().x-player.getAABB().getCentre().x)));
+            }
+            else
+            {
+                e.playerDirection(0);
+            }
+            e.update(dt);
+        }
 
 
         mouse.set(Gdx.input.getX(), Gdx.input.getY(), 0);
@@ -197,6 +214,7 @@ public class Play extends State {
             else {
                 musicToggle.setCurrentAnimation("Off");
                 content.getMusic("Music").stop();
+                System.out.println(enemies.size());
             }
         }
 
@@ -289,20 +307,15 @@ public class Play extends State {
 
         player.render(batch);
 
-        debug.begin(ShapeRenderer.ShapeType.Line);
         for(Tile[] column : terrain) {
             for(Tile tile : column) {
                 if(tile != null) { tile.render(batch); }
-                if(tile instanceof Sensor) {
-                    tile.getAABB().debugRender(debug);
-                }
             }
         }
-        debug.end();
 
 
-        for(Enemy e : enemies) { e.render(batch); }
 
+        for(Enemy e : enemies) { e.render(batch);}
         batch.end();
 
         if(showDeathPoints) {
@@ -380,7 +393,15 @@ public class Play extends State {
         if(tile.getDamage() > 0) { player.hit(); }
         else if(tile.getDamage() == -4) {
             enemyReset = player.getEnemiesKilled();
+            totalKills+=enemyReset;
             gsm.pushState(GameStateManager.END_LEVEL);
+        }
+        else if(tile.getDamage()==-100)
+        {
+            enemyReset = player.getEnemiesKilled();
+            totalKills+=enemyReset;
+            totalTime+=timeTaken;
+            gsm.pushState(GameStateManager.FINISH);
         }
     }
 
@@ -410,6 +431,7 @@ public class Play extends State {
     }
 
     public void resetLevel() {
+
         generator.generate();
         player.reset(generator.getStartPosition());
         camera.position.set(
@@ -423,11 +445,15 @@ public class Play extends State {
         enemies.addAll(generator.getEnemies());
 
         deathPoints.clear();
-
-        timeTaken = 0;
-
+        totalTime+=timeTaken;
+        timeTaken=0;
         terrain = generator.getTerrain();
         levelNumber++;
+        System.out.println("Floor "+levelNumber);
+        if(levelNumber==7)
+        {
+            generator.setFinalLevel(true);
+        }
     }
 
     private void loadContent() {
@@ -467,11 +493,14 @@ public class Play extends State {
         content.loadTexture("BrokenWall2", "Terrain/BrokenWall3.png");
         content.loadTexture("Spikes", "Terrain/Spikes.png");
         content.loadTexture("Ground", "Terrain/Ground.png");
+        content.loadTexture("Amulet", "Terrain/Amulet.png");
 
         content.loadFont("Ubuntu", "UbuntuBold.ttf", 20);
 
         content.loadMusic("Music", "backgroundMusic.mp3");
         content.loadSound("Attack", "attack1.mp3");
+        content.loadSound("Land", "Land.mp3");
+        content.loadSound("Jump", "Jump.mp3");
     }
 
     private void generateEntities() {
@@ -503,6 +532,8 @@ public class Play extends State {
         player.addAnimation("attackRight", playerAttackRight);
         player.addAnimation("attackLeft", playerAttackLeft);
         player.getSounds().add(content.getSound("Attack"));
+        player.getSounds().add(content.getSound("Land"));
+        player.getSounds().add(content.getSound("Jump"));
 
         player.setWeapon(new AABB(player.getAABB().getCentre().x, player.getAABB().getCentre().y + 4, 6, 3));
 
@@ -525,4 +556,12 @@ public class Play extends State {
     public Player getPlayer() { return player; }
 
     public boolean isJustClicked() { return Gdx.input.isTouched() && !touched; }
+
+    public int getTotalKills() {
+        return totalKills;
+    }
+
+    public float getTotalTime() {
+        return totalTime;
+    }
 }

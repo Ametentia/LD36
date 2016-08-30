@@ -39,6 +39,11 @@ public class EndLevel extends State {
         totalPoints += 100f * player.getEnemiesKilled();
         totalPoints -= 50f * player.getNumberDeaths();
 
+        if(totalPoints<0)
+        {
+            totalPoints=0;
+        }
+
         totalPoints = round(totalPoints);
 
         player.addPoints((int)totalPoints);
@@ -68,14 +73,12 @@ public class EndLevel extends State {
 
         mouse.set(100, 100, 0);
         camera.unproject(mouse);
+        font.setColor(1,1,1,1);
         font.draw(batch, "Level Completed!", mouse.x, mouse.y);
-        font.draw(batch, "Time Taken: 5000pts / " + (int)Math.floor(play.getTime()), mouse.x, mouse.y + 30);
-
-        font.draw(batch, "Enemies Killed: 100pts x " + player.getEnemiesKilled(), mouse.x, mouse.y + 60);
-        font.draw(batch, "Deaths: -50pts x " + player.getNumberDeaths(), mouse.x, mouse.y + 90);
-
-        font.draw(batch, "Points Earned: " + (int)totalPoints, mouse.x, mouse.y + 150);
-        font.draw(batch, "Total Points: " + player.getTotalPoints(), mouse.x, mouse.y + 180);
+        font.draw(batch, "Time Taken So Far: " + (int)Math.floor(play.getTime()), mouse.x, mouse.y + 30);
+        font.draw(batch, "Enemies Killed So Far: 100pts x " + player.getEnemiesKilled(), mouse.x, mouse.y + 60);
+        font.draw(batch, "Deaths This Level:  " + player.getNumberDeaths(), mouse.x, mouse.y + 90);
+        font.draw(batch, "Total Points: " + player.getTotalPoints(), mouse.x, mouse.y + 150);
         batch.end();
     }
 

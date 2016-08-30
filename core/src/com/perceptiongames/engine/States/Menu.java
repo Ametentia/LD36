@@ -25,6 +25,7 @@ public class Menu extends State{
     private List<Button> buttons;
     private SpriteBatch batch;
     private Texture bg;
+    private Texture cnt;
 
 
     public Menu(GameStateManager gsm)
@@ -35,6 +36,7 @@ public class Menu extends State{
 
         loadContent();
         bg = content.getTexture("Background");
+        cnt=content.getTexture("controls");
         bg.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
         Animation a = new Animation(content.getTexture("ButtonBack"),1,1,10f);
         Button play = new Button(a,"Back",new AABB(Game.WIDTH/2, Game.HEIGHT/2 -80,110,40));
@@ -50,7 +52,10 @@ public class Menu extends State{
     public void loadContent(){
         content.loadTexture("ButtonBack", "button.png");
         content.loadFont("Menu","UbuntuBold.ttf",55);
+        content.loadFont("Menus","UbuntuBold.ttf",25);
         content.loadTexture("Background", "Background.png");
+        content.loadSound("Boop", "Boop.mp3");
+        content.loadTexture("controls","controls.png");
     }
 
     @Override
@@ -62,6 +67,7 @@ public class Menu extends State{
 
             if(b.getAABB().contains(new Vector2(mouse.x,mouse.y)) && Gdx.input.isTouched())
             {
+                content.getSound("Boop").play(0.2f);
                 if(b.getText().equals("Play"))
                 {
                     gsm.pushState(GameStateManager.PLAY);
@@ -87,6 +93,7 @@ public class Menu extends State{
             b.render(batch);
             content.getFont("Menu").draw(batch,b.getText(),b.getAABB().getPosition().x+15,b.getAABB().getPosition().y+20);
         }
+        batch.draw(cnt,Game.WIDTH/2-cnt.getWidth()/2,500);
         batch.end();
     }
 
